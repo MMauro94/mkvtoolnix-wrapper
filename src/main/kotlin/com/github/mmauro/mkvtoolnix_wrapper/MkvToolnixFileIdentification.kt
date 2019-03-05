@@ -3,7 +3,7 @@ package com.github.mmauro.mkvtoolnix_wrapper
 import com.beust.klaxon.Json
 import com.github.mmauro.mkvtoolnix_wrapper.json.klaxon
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
-import com.github.mmauro.mkvtoolnix_wrapper.propedit.ParseMode
+import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditParseMode
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -31,7 +31,7 @@ class MkvToolnixFileIdentification(
     val warnings: List<String>
 ) {
 
-    fun propedit(parseMode: ParseMode = ParseMode.FAST) = MkvPropEditCommand(fileName, parseMode)
+    fun propedit(parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST) = MkvPropEditCommand(fileName, parseMode)
 
     companion object {
 

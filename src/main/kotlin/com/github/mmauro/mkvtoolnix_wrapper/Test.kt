@@ -1,5 +1,6 @@
 package com.github.mmauro.mkvtoolnix_wrapper
 
+import com.github.mmauro.mkvtoolnix_wrapper.propedit.deleteName
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.setIsDefault
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.setLanguage
 import java.io.File
@@ -18,11 +19,38 @@ fun main() {
 
     x.propedit().apply {
         x.tracks.forEach { track ->
-            addTrackEdit(track).setLanguage(MkvToolnixLanguage.all["eng"]!!).setIsDefault(Math.random() > 0.5)
+            editTrack(track) {
+                setLanguage(MkvToolnixLanguage.all.getValue("eng"))
+                setIsDefault(Math.random() > 0.5)
+            }
         }
         println(commandArgs().joinToString(" "))
     }
+    println()
 
+    println(x.propedit()
+        .editTrackPosition(1) {
+            setLanguage("eng")
+            deleteName()
+        }
+        .editTrackNumber(1) {
+            setIsDefault(false)
+        }
+        .editTrack(x.tracks[0]) {
+            setIsDefault(true)
+        }
+        .addAttachment(File("lol")) {
+            name = "pincopallo"
+        }
+        .updateAttachmentId(75) {
+            name = "cioo"
+        }
+        .deleteAttachmentName("fff")
+        .commandArgs()
+        .joinToString(" ")
+    )
 
     //TODO check out https://mkvtoolnix.download/doc/mkvmerge-identification-output-schema-v11.json
+
+    //TODO checkout http://manpages.ubuntu.com/manpages/bionic/pl/man1/mkvpropedit.1.html, section ESCAPING SPECIAL CHARS IN TEXT
 }

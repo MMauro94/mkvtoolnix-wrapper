@@ -2,6 +2,7 @@ package com.github.mmauro.mkvtoolnix_wrapper
 
 import com.beust.klaxon.Json
 import java.io.File
+import java.math.BigInteger
 
 data class MkvToolnixAttachment(
 
@@ -29,6 +30,6 @@ data class MkvToolnixAttachment(
 
     data class Properties(
         @Json("uid")
-        val uid: Int
+        val uid: BigInteger
     )
 }

@@ -1,5 +1,11 @@
 package com.github.mmauro.mkvtoolnix_wrapper
 
+interface CommandArg : CommandArgs {
+    fun commandArg() : String
+
+    override fun commandArgs() = listOf(commandArg())
+}
+
 interface CommandArgs {
 
     fun commandArgs() : List<String>
