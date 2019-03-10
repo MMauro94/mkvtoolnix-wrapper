@@ -1,5 +1,6 @@
 package com.github.mmauro.mkvtoolnix_wrapper
 
+import com.github.mmauro.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.deleteName
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.setIsDefault
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.setLanguage
@@ -49,6 +50,29 @@ fun main() {
         .commandArgs()
         .joinToString(" ")
     )
+
+    println()
+    println(MkvToolnixBinary.MKV_PROP_EDIT.getVersionString())
+    println(MkvToolnixBinary.MKV_PROP_EDIT.getVersionInfo())
+    println()
+
+    println(MkvMergeCommand(File("out.mkv"))
+        .addInputFile(File("inputA.avi")) {
+            audioTracks.excludeAll()
+            subtitleTracks.include {
+                addByLanguage("ita")
+            }
+            videoTracks.excludeAll()
+        }
+        .addInputFile(File("inputB.avi")) {
+            audioTracks.include {
+                add(4)
+            }
+            videoTracks.includeAll()
+            subtitleTracks.excludeAll()
+        }
+        .commandArgs()
+        .joinToString(" "))
 
     //TODO check out https://mkvtoolnix.download/doc/mkvmerge-identification-output-schema-v11.json
 

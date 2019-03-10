@@ -11,14 +11,16 @@ class MkvPropEditCommand(
 ) : CommandArgs {
 
     val operations = ArrayList<MkvPropEditCommandOperation>()
+    var verbose = false
+    var abortOnWarnings = false
 
-
-    //region EDIT TRACK
+    //region PROPERTY EDIT
+    //region track
     fun editTrack(
         track: MkvToolnixTrack,
-        propertyEdit: PropertyEdit<MkvToolnixTrackSelector>.() -> Unit
+        f: PropertyEdit<MkvToolnixTrackSelector>.() -> Unit
     ): MkvPropEditCommand {
-        operations.add(PropertyEdit(MkvToolnixTrackSelector.ofTrack(track)))
+        operations.add(PropertyEdit(MkvToolnixTrackSelector.ofTrack(track)).apply(f))
         return this
     }
 
@@ -55,6 +57,10 @@ class MkvPropEditCommand(
     }
     //endregion
 
+    fun editSegmentInfo(f: PropertyEdit<SegmentInfoSelector>.() -> Unit) {
+        operations.add(PropertyEdit(SegmentInfoSelector).apply(f))
+    }
+    //endregion
 
     //region ATTACHMENT
     //region add
@@ -233,6 +239,12 @@ class MkvPropEditCommand(
     //endregion
 
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
+        if(verbose) {
+            add("--verbose")
+        }
+        if(abortOnWarnings) {
+            add("--abort-on-warnings")
+        }
         add(parseMode)
         add(file.absolutePath.toString())
         operations.forEach { add(it) }

@@ -13,11 +13,11 @@ sealed class MkvToolnixAttachmentSelector : CommandArg {
     }
 
     class AttachmentNameSelector(val name : String) : MkvToolnixAttachmentSelector() {
-        override fun commandArg() = "name\\c$name"
+        override fun commandArg() = "name:${name.mkvtoolnixEscape()}"
     }
 
     class AttachmentMimeTypeSelector(val mimeType : String) : MkvToolnixAttachmentSelector() {
-        override fun commandArg() = "mime-type\\c$mimeType"
+        override fun commandArg() = "mime-type:${mimeType.mkvtoolnixEscape()}"
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package com.github.mmauro.mkvtoolnix_wrapper
 
+import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditCommandOperation
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditPropertyEditSelector
 import java.math.BigInteger
 
@@ -22,7 +23,9 @@ sealed class MkvToolnixTrackSelector : MkvPropEditPropertyEditSelector, CommandA
         override fun commandArg() = "track:@$number"
     }
 
+
     companion object {
+
         @JvmStatic
         fun ofTrack(track: MkvToolnixTrack) =
             when {

@@ -14,3 +14,7 @@ interface CommandArgs {
 fun MutableList<String>.add(args: CommandArgs) {
     addAll(args.commandArgs())
 }
+
+internal fun MutableList<String>.add(vararg args: String) {
+    addAll(args)
+}
