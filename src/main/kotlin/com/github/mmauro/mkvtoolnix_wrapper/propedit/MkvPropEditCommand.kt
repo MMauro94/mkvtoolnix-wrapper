@@ -1,14 +1,23 @@
 package com.github.mmauro.mkvtoolnix_wrapper.propedit
 
 import com.github.mmauro.mkvtoolnix_wrapper.*
+import com.github.mmauro.mkvtoolnix_wrapper.MkvToolnixCommandException.MkvPropEditException
 import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditCommandOperation.PropertyEdit
+import com.github.mmauro.mkvtoolnix_wrapper.utils.asCachedSequence
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
 import java.math.BigInteger
 
+/**
+ * Class to create a `mkvpropedit` command
+ * @param file the file that needs to be modified
+ * @param parseMode the parse mode. Defaults to [MkvPropEditParseMode.FAST]
+ */
 class MkvPropEditCommand(
     val file: File,
     val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST
-) : CommandArgs {
+) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
     val operations = ArrayList<MkvPropEditCommandOperation>()
     var verbose = false
@@ -239,10 +248,10 @@ class MkvPropEditCommand(
     //endregion
 
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
-        if(verbose) {
+        if (verbose) {
             add("--verbose")
         }
-        if(abortOnWarnings) {
+        if (abortOnWarnings) {
             add("--abort-on-warnings")
         }
         add(parseMode)
@@ -250,7 +259,33 @@ class MkvPropEditCommand(
         operations.forEach { add(it) }
     }
 
-    fun execute() {
-        MkvToolnixBinary.MKV_PROP_EDIT.processBuilder(*commandArgs().toTypedArray()).start()
+    companion object {
+        private const val WARNING_PREFIX = "WARNING:"
+        private const val ERROR_PREFIX = "ERROR:"
+    }
+
+    override val exceptionInitializer = ::MkvPropEditException
+
+    override fun executeLazy(): MkvToolnixCommandResult.Lazy<MkvPropEditCommand> {
+        val p = processBuilder().apply {
+            redirectErrorStream(true)
+        }.start()
+
+        val reader = BufferedReader(InputStreamReader(p.inputStream))
+        val output = reader.lineSequence().map { line ->
+            Thread.sleep(500)
+            val (msg, type) = if (line.startsWith(WARNING_PREFIX)) {
+                line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
+            } else if (line.startsWith(ERROR_PREFIX)) {
+                line.substring(ERROR_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.ERROR
+            } else {
+                line to MkvToolnixCommandResult.Line.Type.INFO
+            }
+            if (type != MkvToolnixCommandResult.Line.Type.INFO || msg.isNotBlank()) {
+                MkvToolnixCommandResult.Line(msg, type)
+            } else null
+        }.filterNotNull().asCachedSequence()
+
+        return MkvToolnixCommandResult.Lazy(this, reader, { p.waitFor() }, output)
     }
 }

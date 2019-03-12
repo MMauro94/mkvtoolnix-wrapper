@@ -40,6 +40,7 @@ sealed class MkvPropEditCommandOperation : CommandArgs {
         }
 
         override fun commandArgs(): List<String> = ArrayList<String>().apply {
+            add("--edit")
             add(editSelector)
             actions.forEach { add(it) }
         }

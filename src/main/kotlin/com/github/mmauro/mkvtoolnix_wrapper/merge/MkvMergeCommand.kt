@@ -1,12 +1,10 @@
 package com.github.mmauro.mkvtoolnix_wrapper.merge
 
-import com.github.mmauro.mkvtoolnix_wrapper.CommandArgs
-import com.github.mmauro.mkvtoolnix_wrapper.MkvToolnixLanguage
-import com.github.mmauro.mkvtoolnix_wrapper.MkvToolnixTrack
-import com.github.mmauro.mkvtoolnix_wrapper.add
+import com.github.mmauro.mkvtoolnix_wrapper.*
+import com.github.mmauro.mkvtoolnix_wrapper.MkvToolnixCommandException.MkvMergeException
 import java.io.File
 
-class MkvMergeCommand(val outputFile: File) : CommandArgs {
+class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>(MkvToolnixBinary.MKV_MERGE) {
 
     object GlobalOptions : CommandArgs {
 
@@ -37,9 +35,9 @@ class MkvMergeCommand(val outputFile: File) : CommandArgs {
 
         class TracksCommand(val typeCommand: String, val excludeAllCommand: String) : CommandArgs {
 
-            private enum class Mode { INCLUDE, EXCLUDE }
+            enum class Mode { INCLUDE, EXCLUDE }
 
-            private var mode = Mode.EXCLUDE
+            var mode = Mode.EXCLUDE
             val tracks = Tracks()
 
             sealed class Track {
@@ -65,7 +63,7 @@ class MkvMergeCommand(val outputFile: File) : CommandArgs {
             class Tracks {
                 val tracks = ArrayList<Track>()
 
-                fun add(id: Long) = apply { tracks.add(Track.TrackId(id)) }
+                fun addById(id: Long) = apply { tracks.add(Track.TrackId(id)) }
                 fun addByLanguage(language: String) = apply { tracks.add(Track.TrackLanguage(language)) }
                 fun addByLanguage(language: MkvToolnixLanguage) = apply { tracks.add(Track.TrackLanguage(language)) }
             }
@@ -83,12 +81,12 @@ class MkvMergeCommand(val outputFile: File) : CommandArgs {
             }
 
             fun include(f: Tracks.() -> Unit) = apply {
-                excludeAll()
+                excludeAll() //Include nothing
                 tracks.apply(f)
             }
 
             fun exclude(f: Tracks.() -> Unit) = apply {
-                includeAll()
+                includeAll() //Exclude nothing
                 tracks.apply(f)
             }
 
@@ -136,4 +134,10 @@ class MkvMergeCommand(val outputFile: File) : CommandArgs {
         add("--output", outputFile.absolutePath.toString())
         inputFiles.forEach { add(it) }
     }
+
+    override fun executeLazy(): MkvToolnixCommandResult.Lazy<MkvMergeCommand> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override val exceptionInitializer = ::MkvMergeException
 }

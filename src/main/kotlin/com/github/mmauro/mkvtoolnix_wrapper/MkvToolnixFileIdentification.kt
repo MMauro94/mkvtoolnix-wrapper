@@ -31,10 +31,16 @@ class MkvToolnixFileIdentification(
     val warnings: List<String>
 ) {
 
+    /**
+     * @return a new [MkvPropEditCommand] with this file as a subject
+     */
     fun propedit(parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST) = MkvPropEditCommand(fileName, parseMode)
 
     companion object {
 
+        /**
+         * Same as [MkvToolnix.identify]
+         */
         @JvmStatic
         fun identify(file: File): MkvToolnixFileIdentification {
             val p = MkvToolnixBinary.MKV_MERGE.processBuilder("-J", file.absolutePath).start()

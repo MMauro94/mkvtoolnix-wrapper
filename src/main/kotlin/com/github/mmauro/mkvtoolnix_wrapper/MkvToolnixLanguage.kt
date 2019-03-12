@@ -26,8 +26,12 @@ class MkvToolnixLanguage(
     companion object {
 
         private val LANGUAGE_LINE_PATTERN =
-            Pattern.compile("^\\s*([^\\s]+)\\s+\\|\\s*([a-z]{3})\\s*\\|\\s*([a-z]{2})?\\s*$")
+            Pattern.compile("^\\s*([^\\s]+)\\s+\\|\\s*([a-z]{3})\\s*\\|\\s*([a-z]{2})?\\s*$")!!
 
+        /**
+         * Map of all the available languages in `mkvmerge`
+         * This value is lazily evaluated the first time it is used.
+         */
         val all: Map<String, MkvToolnixLanguage> by lazy {
             val p = MkvToolnixBinary.MKV_MERGE.processBuilder("--list-languages").start()
             BufferedReader(InputStreamReader(p.inputStream)).use { input ->

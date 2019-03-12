@@ -1,31 +1,48 @@
 package com.github.mmauro.mkvtoolnix_wrapper
 
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
-import java.lang.IllegalStateException
 import java.util.regex.Pattern
 
 /**
  * A binary included with MKV Toolnix
- * @param executableName the name of the binary
+ * @param binaryName the name of the binary
  */
-enum class MkvToolnixBinary(val executableName: String) {
+enum class MkvToolnixBinary(val binaryName: String) {
     MKV_PROP_EDIT("mkvpropedit"),
     MKV_MERGE("mkvmerge");
 
-    internal fun processBuilder(vararg params: String) = ProcessBuilder(executableName, *params).apply {
+    /**
+     * The file pointing to this binary, or `null` if the the binary should be searched using the environment PATH
+     */
+    fun file() = MkvToolnix.mkvToolnixPath?.let {
+        File(it, binaryName)
+    }
+
+    internal fun command() = file()?.toString() ?: binaryName
+
+    internal fun processBuilder(vararg params: String) = ProcessBuilder(command(), *params).apply {
         redirectErrorStream(true)
     }
 
+    /**
+     * Detects the version of this binary
+     * @return the complete string with the version
+     */
     fun getVersionString() = processBuilder("--version").start().let {
         BufferedReader(InputStreamReader(it.inputStream)).use { input ->
             input.readText().trim()
         }
     }
 
-    fun getVersionInfo() : VersionInfo {
-        val m =  VERSION_PATTERN.matcher(getVersionString())
-        return if(m.matches()) {
+    /**
+     * Detects and parses the version of this binary
+     * @return a [VersionInfo] instance containing the parsed information
+     */
+    fun getVersionInfo(): VersionInfo {
+        val m = VERSION_PATTERN.matcher(getVersionString())
+        return if (m.matches()) {
             VersionInfo(
                 programName = m.group(1)!!,
                 version = Version(m.group(2)!!.toInt(), m.group(3)!!.toInt(), m.group(4)!!.toInt()),
