@@ -128,7 +128,7 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
         }
 
         /**
-         * Returns a sync version of this object. Halts until program execution terminates.
+         * Returns a sync version of this object. Takes care of closing the input stream. Halts until program execution terminates.
          */
         fun toSync() = use {
             Sync(command, exitCode, output.toList())

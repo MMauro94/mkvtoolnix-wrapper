@@ -16,8 +16,8 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
     }
 
     /**
-     * Starts the execution of the command, returning the result object immediately.
-     * The output can be iterated while the program is running. Calling `exitCode` will obviously halt until the command terminates.
+     * Starts the execution of the command, returning the result object immediately, lazingly parsing the output.
+     * The output can be iterated while the program is running. Calling [MkvToolnixCommandResult.exitCode] will obviously halt until the command terminates.
      *
      * WARNING! If you call this method, you will be responsible for closing the input stream. You can do so by calling [MkvToolnixCommandResult.Lazy.close] on the returned object. It is therefore suggested to [use] the returned object immediately
      *
@@ -27,7 +27,9 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
 
     /**
      * Executes the command and waits for its completion.
-     * The returned result object will have all the parsed data in place
+     * The returned result object will have all the parsed data in place.
+     *
+     * In this case, contrary to [executeLazy], the input stream will be closed automatically.
      *
      * @return the sync result
      * @throws MkvToolnixCommandException when there is an error or warning. A specific class type will be thrown for each binary (i.e. [MkvToolnixCommandException.MkvPropEditException] and [MkvToolnixCommandException.MkvMergeException]

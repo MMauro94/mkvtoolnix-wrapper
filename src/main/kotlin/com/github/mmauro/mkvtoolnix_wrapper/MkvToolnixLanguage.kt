@@ -11,7 +11,7 @@ import java.util.regex.Pattern
  * @param iso639_1 the two-letter ISO 639-1 code. Can be null
  * @param iso639_2 the three-letter ISO 639-2 code
  */
-class MkvToolnixLanguage(
+class MkvToolnixLanguage internal constructor(
     val name: String,
     val iso639_1: String?,
     val iso639_2: String

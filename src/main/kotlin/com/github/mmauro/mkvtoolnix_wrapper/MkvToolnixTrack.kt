@@ -27,9 +27,11 @@ data class MkvToolnixTrack(
     internal var _trackPosition : Int? = null
 
 
+    /** The [MkvToolnixFileIdentification] this track belongs to */
     @Json(ignored = true)
     val fileIdentification by lazy { _fileIdentification!! }
 
+    /** 1-index position of the track in the source file */
     @Json(ignored = true)
     val trackPosition by lazy { _trackPosition!! }
 

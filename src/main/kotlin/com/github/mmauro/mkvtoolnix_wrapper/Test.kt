@@ -18,36 +18,35 @@ fun main() {
 
     val result = x.propedit().apply {
         x.tracks.forEach {
-            editTrack(it) {
+            editTrackProperties(it) {
                 deleteName()
             }
         }
         x.tracks.asSequence().filter { it.type == MkvToolnixTrackType.video }.forEach {
-            editTrack(it) {
+            editTrackProperties(it) {
                 setLanguage("und")
             }
         }
     }.executeAndPrint()
-
     /*
     println(x.propedit()
-        .editTrackPosition(1) {
+        .editTrackByPropertiesPosition(1) {
             setLanguage("eng")
             deleteName()
         }
-        .editTrackNumber(1) {
+        .editTrackPropertiesByNumber(1) {
             setIsDefault(false)
         }
-        .editTrack(x.tracks[0]) {
+        .editTrackProperties(x.tracks[0]) {
             setIsDefault(true)
         }
         .addAttachment(File("lol")) {
             name = "pincopallo"
         }
-        .updateAttachmentId(75) {
+        .updateAttachmentById(75) {
             name = "cioo"
         }
-        .deleteAttachmentName("fff")
+        .deleteAttachmentByName("fff")
         .commandArgs()
         .joinToString(" ")
     )

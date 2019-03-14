@@ -2,7 +2,6 @@ package com.github.mmauro.mkvtoolnix_wrapper.propedit
 
 import com.github.mmauro.mkvtoolnix_wrapper.*
 import com.github.mmauro.mkvtoolnix_wrapper.MkvToolnixCommandException.MkvPropEditException
-import com.github.mmauro.mkvtoolnix_wrapper.propedit.MkvPropEditCommandOperation.PropertyEdit
 import com.github.mmauro.mkvtoolnix_wrapper.utils.asCachedSequence
 import java.io.BufferedReader
 import java.io.File
@@ -11,63 +10,112 @@ import java.math.BigInteger
 
 /**
  * Class to create a `mkvpropedit` command
- * @param file the file that needs to be modified
+ * @param sourceFile the file that needs to be modified
  * @param parseMode the parse mode. Defaults to [MkvPropEditParseMode.FAST]
+ * @param verbose `--verbose`/`-v` option. Be verbose and show all the important Matroska™ elements as they're read.
+ * @param abortOnWarnings `--abort-on-warnings` option. Tells the program to abort after the first warning is emitted. The program's exit code will be 1.
  */
 class MkvPropEditCommand(
-    val file: File,
-    val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST
+    val sourceFile: File,
+    val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST,
+    var verbose : Boolean = false,
+    var abortOnWarnings : Boolean = false
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
-    val operations = ArrayList<MkvPropEditCommandOperation>()
-    var verbose = false
-    var abortOnWarnings = false
+    /** List of actions that will be performed in the source file */
+    val actions = ArrayList<MkvPropEditCommandAction>()
 
     //region PROPERTY EDIT
     //region track
-    fun editTrack(
+
+    /**
+     * Edit the given track. Example:
+     * ```kotlin
+     * MkvPropEditCommand(File("..."))
+     *  .editTrackProperties(track) { //<- lambda to set object properties
+     *      set("prop-name1", "hello")
+     *      delete("prop-name1")
+     *      add("prop-name3", "world")
+     *  }
+     * ```
+     *
+     * @param track the track to edit
+     * @param f lambda that fills the provided [MkvPropEditCommandPropertyEditAction] to set what properties to edit.
+     * @see MkvToolnixTrackSelector.ofTrack
+     */
+    fun editTrackProperties(
         track: MkvToolnixTrack,
-        f: PropertyEdit<MkvToolnixTrackSelector>.() -> Unit
+        f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector>.() -> Unit
     ): MkvPropEditCommand {
-        operations.add(PropertyEdit(MkvToolnixTrackSelector.ofTrack(track)).apply(f))
+        actions.add(MkvPropEditCommandPropertyEditAction(MkvToolnixTrackSelector.ofTrack(track)).apply(f))
         return this
     }
 
-    fun editTrackUid(
+    /**
+     * Edit a track by its UID.
+     * @param uid the track UID
+     * @see editTrackProperties
+     * @see MkvToolnixTrackSelector.UidSelector
+     */
+    fun editTrackPropertiesByUid(
         uid: BigInteger,
-        f: PropertyEdit<MkvToolnixTrackSelector.TrackUidSelector>.() -> Unit
+        f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.UidSelector>.() -> Unit
     ): MkvPropEditCommand {
-        operations.add(PropertyEdit(MkvToolnixTrackSelector.TrackUidSelector(uid)).apply(f))
+        actions.add(MkvPropEditCommandPropertyEditAction(MkvToolnixTrackSelector.UidSelector(uid)).apply(f))
         return this
     }
 
-    fun editTrackNumber(
+    /**
+     * Edit a track by its number.
+     * @param number the track number
+     * @see editTrackProperties
+     * @see MkvToolnixTrackSelector.NumberSelector
+     */
+    fun editTrackPropertiesByNumber(
         number: Int,
-        f: PropertyEdit<MkvToolnixTrackSelector.TrackNumberSelector>.() -> Unit
+        f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.NumberSelector>.() -> Unit
     ): MkvPropEditCommand {
-        operations.add(PropertyEdit(MkvToolnixTrackSelector.TrackNumberSelector(number)).apply(f))
+        actions.add(MkvPropEditCommandPropertyEditAction(MkvToolnixTrackSelector.NumberSelector(number)).apply(f))
         return this
     }
 
-    fun editTrackPosition(
+    /**
+     * Edit a track by its position in the source file.
+     * @param position the 1-index position of the track in the source file
+     * @see editTrackProperties
+     * @see MkvToolnixTrackSelector.PositionSelector
+     */
+    fun editTrackByPropertiesPosition(
         position: Int,
-        f: PropertyEdit<MkvToolnixTrackSelector.TrackPositionSelector>.() -> Unit
+        f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.PositionSelector>.() -> Unit
     ): MkvPropEditCommand {
-        return editTrackPosition(position, null, f)
+        return editTrackByPropertiesPosition(position, null, f)
     }
 
-    fun editTrackPosition(
+    /**
+     * Edit a track by its position in the source file (of the given track types)
+     * @param position the 1-index position of the track in the source file
+     * @param trackType the track type
+     * @see editTrackProperties
+     * @see MkvToolnixTrackSelector.PositionSelector
+     */
+    fun editTrackByPropertiesPosition(
         position: Int,
         trackType: MkvToolnixTrackType?,
-        f: PropertyEdit<MkvToolnixTrackSelector.TrackPositionSelector>.() -> Unit
+        f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.PositionSelector>.() -> Unit
     ): MkvPropEditCommand {
-        operations.add(PropertyEdit(MkvToolnixTrackSelector.TrackPositionSelector(position, trackType)).apply(f))
+        actions.add(MkvPropEditCommandPropertyEditAction(MkvToolnixTrackSelector.PositionSelector(position, trackType)).apply(f))
         return this
     }
     //endregion
 
-    fun editSegmentInfo(f: PropertyEdit<SegmentInfoSelector>.() -> Unit) {
-        operations.add(PropertyEdit(SegmentInfoSelector).apply(f))
+    /**
+     * Edit the properties for the segment info.
+     * The lambda parameter works the same as in [editTrackProperties]
+     * @param f lambda that fills the provided [MkvPropEditCommandPropertyEditAction] to set what properties to edit.
+     */
+    fun editSegmentInfo(f: MkvPropEditCommandPropertyEditAction<SegmentInfoSelector>.() -> Unit) {
+        actions.add(MkvPropEditCommandPropertyEditAction(SegmentInfoSelector).apply(f))
     }
     //endregion
 
@@ -75,9 +123,9 @@ class MkvPropEditCommand(
     //region add
     fun addAttachment(
         file: File,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Add.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Add.() -> Unit = {}
     ): MkvPropEditCommand {
-        operations.add(MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Add(file).apply(f))
+        actions.add(MkvPropEditCommandAttachmentEditAction.WithProperties.Add(file).apply(f))
         return this
     }
     //endregion
@@ -86,60 +134,60 @@ class MkvPropEditCommand(
     fun replaceAttachment(
         attachment: MkvToolnixAttachment,
         file: File,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Replace(
                 MkvToolnixAttachmentSelector.ofAttachment(attachment),
                 file
             ).apply(f)
         )
     }
 
-    fun replaceAttachmentId(
+    fun replaceAttachmentById(
         id: Long,
         file: File,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Replace(
                 MkvToolnixAttachmentSelector.AttachmentIdSelector(id),
                 file
             ).apply(f)
         )
     }
 
-    fun replaceAttachmentUid(
+    fun replaceAttachmentByUid(
         uid: BigInteger,
         file: File,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Replace(
                 MkvToolnixAttachmentSelector.AttachmentUidSelector(uid),
                 file
             ).apply(f)
         )
     }
 
-    fun replaceAttachmentName(
-        name: String, file: File, f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace.() -> Unit = {}
+    fun replaceAttachmentByName(
+        name: String, file: File, f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Replace(
                 MkvToolnixAttachmentSelector.AttachmentNameSelector(name),
                 file
             ).apply(f)
         )
     }
 
-    fun replaceAttachmentMimeType(
+    fun replaceAttachmentByMimeType(
         mimeType: String,
         file: File,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Replace(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Replace(
                 MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector(mimeType),
                 file
             ).apply(f)
@@ -150,54 +198,54 @@ class MkvPropEditCommand(
     //region update
     fun updateAttachment(
         attachment: MkvToolnixAttachment,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update.() -> Unit = {}
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit = {}
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Update(
                 MkvToolnixAttachmentSelector.ofAttachment(attachment)
             ).apply(f)
         )
     }
 
-    fun updateAttachmentId(
+    fun updateAttachmentById(
         id: Long,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update.() -> Unit
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Update(
                 MkvToolnixAttachmentSelector.AttachmentIdSelector(id)
             ).apply(f)
         )
     }
 
-    fun updateAttachmentUid(
+    fun updateAttachmentByUid(
         uid: BigInteger,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update.() -> Unit
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Update(
                 MkvToolnixAttachmentSelector.AttachmentUidSelector(uid)
             ).apply(f)
         )
     }
 
-    fun updateAttachmentName(
+    fun updateAttachmentByName(
         name: String,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update.() -> Unit
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Update(
                 MkvToolnixAttachmentSelector.AttachmentNameSelector(name)
             ).apply(f)
         )
     }
 
-    fun updateAttachmentMimeType(
+    fun updateAttachmentByMimeType(
         mimeType: String,
-        f: MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update.() -> Unit
+        f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
     ) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.WithProperties.Update(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.WithProperties.Update(
                 MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector(mimeType)
             ).apply(f)
         )
@@ -206,40 +254,40 @@ class MkvPropEditCommand(
 
     //region delete
     fun deleteAttachment(attachment: MkvToolnixAttachment) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.Delete(
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.Delete(
                 MkvToolnixAttachmentSelector.ofAttachment(attachment)
             )
         )
     }
 
-    fun deleteAttachmentId(id: Long) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.Delete(
+    fun deleteAttachmentById(id: Long) = apply {
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.Delete(
                 MkvToolnixAttachmentSelector.AttachmentIdSelector(id)
             )
         )
     }
 
-    fun deleteAttachmentUid(uid: BigInteger) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.Delete(
+    fun deleteAttachmentByUid(uid: BigInteger) = apply {
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.Delete(
                 MkvToolnixAttachmentSelector.AttachmentUidSelector(uid)
             )
         )
     }
 
-    fun deleteAttachmentName(name: String) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.Delete(
+    fun deleteAttachmentByName(name: String) = apply {
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.Delete(
                 MkvToolnixAttachmentSelector.AttachmentNameSelector(name)
             )
         )
     }
 
-    fun deleteAttachmentMimeType(mimeType: String) = apply {
-        operations.add(
-            MkvPropEditCommandOperation.AttachmentEdit.Delete(
+    fun deleteAttachmentByMimeType(mimeType: String) = apply {
+        actions.add(
+            MkvPropEditCommandAttachmentEditAction.Delete(
                 MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector(mimeType)
             )
         )
@@ -255,8 +303,8 @@ class MkvPropEditCommand(
             add("--abort-on-warnings")
         }
         add(parseMode)
-        add(file.absolutePath.toString())
-        operations.forEach { add(it) }
+        add(sourceFile.absolutePath.toString())
+        actions.forEach { add(it) }
     }
 
     companion object {

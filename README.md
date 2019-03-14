@@ -3,3 +3,9 @@ An easy to use light kotlin-jvm wrapper for most common mkvmerge and mkvpropedit
 
 
 Still WIP
+
+# Examples
+## Example of mkpropedit command
+```kotlin
+
+```
