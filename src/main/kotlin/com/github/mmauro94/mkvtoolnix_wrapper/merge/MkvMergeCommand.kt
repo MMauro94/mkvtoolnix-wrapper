@@ -61,7 +61,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             }
 
             class Tracks {
-                val tracks = ArrayList<Track>()
+                val tracks: MutableList<Track> = ArrayList()
 
                 fun addById(id: Long) = apply { tracks.add(Track.TrackId(id)) }
                 fun addByLanguage(language: String) = apply { tracks.add(Track.TrackLanguage(language)) }
@@ -123,7 +123,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
 
     }
 
-    val inputFiles = ArrayList<InputFile>()
+    val inputFiles: MutableList<InputFile> = ArrayList()
 
     fun addInputFile(file: File, f: InputFile.() -> Unit = {}) = apply {
         inputFiles.add(InputFile(file).apply(f))

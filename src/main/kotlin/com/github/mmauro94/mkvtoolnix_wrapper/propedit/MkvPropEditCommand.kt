@@ -23,7 +23,7 @@ class MkvPropEditCommand @JvmOverloads constructor(
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
     /** List of actions that will be performed in the source file */
-    val actions = ArrayList<MkvPropEditCommandAction>()
+    val actions : MutableList<MkvPropEditCommandAction> = ArrayList()
 
     //region PROPERTY EDIT
     //region track

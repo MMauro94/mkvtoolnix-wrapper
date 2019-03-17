@@ -71,7 +71,7 @@ class MkvPropEditCommandPropertyEditAction<T : MkvPropEditPropertyEditSelector>(
     /**
      * List of [PropertyEdit]s that will modify properties in the given selector ([MkvPropEditPropertyEditSelector])
      */
-    val actions = ArrayList<PropertyEdit>()
+    val actions : MutableList<PropertyEdit>  = ArrayList()
 
     /**
      * See [Add] doc
