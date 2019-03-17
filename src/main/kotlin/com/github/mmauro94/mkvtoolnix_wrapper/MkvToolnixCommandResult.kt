@@ -4,6 +4,7 @@ import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandResult.*
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandResult.Line.Type
 import com.github.mmauro94.mkvtoolnix_wrapper.utils.CachedSequence
 import java.io.BufferedReader
+import java.util.regex.Pattern
 
 /**
  * Abstract class that represents a result given by a MKV Toolnix binary.
@@ -30,8 +31,23 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
             INFO, WARNING, ERROR
         }
 
+        val progress by lazy {
+            if (type == Type.INFO) {
+                val m = PROGRESS_PATTERN.matcher(message)
+                if (m.matches()) {
+                    m.group(1).toInt() / 100f
+                } else null
+            } else null
+        }
+
+        val isProgressLine by lazy { progress != null }
+
         override fun toString(): String {
             return "${type.name}: $message";
+        }
+
+        companion object {
+            private val PROGRESS_PATTERN = Pattern.compile("^Progress:\\s+\\[=*\\s*]\\s+(\\d+)%$")
         }
     }
 
@@ -162,3 +178,14 @@ fun Sequence<MkvToolnixCommandResult.Line>.warnings() = filter { it.type == MkvT
 fun Sequence<MkvToolnixCommandResult.Line>.errors() = filter { it.type == MkvToolnixCommandResult.Line.Type.ERROR }
 fun Sequence<MkvToolnixCommandResult.Line>.info() = filter { it.type == MkvToolnixCommandResult.Line.Type.INFO }
 
+@Suppress("ReplaceSingleLineLet")
+fun Sequence<Line>.progress() = this.let {
+    sequence {
+        yield(0f)
+        yieldAll(it
+            .map { it.progress }
+            .filterNotNull()
+        )
+        yield(1f)
+    }
+}

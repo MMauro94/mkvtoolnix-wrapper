@@ -34,7 +34,7 @@ data class MkvToolnixFileIdentification(
     /**
      * @return a new [MkvPropEditCommand] with this file as a subject
      */
-    fun propedit(parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST) = MkvPropEditCommand(fileName, parseMode)
+    fun propedit() = MkvPropEditCommand(fileName)
 
     companion object {
 

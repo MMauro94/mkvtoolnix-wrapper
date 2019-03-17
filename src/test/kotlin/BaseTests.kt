@@ -55,6 +55,7 @@ class BaseTests {
             val vi = it.getVersionInfo()
             assertEquals(it.binaryName, vi.programName)
             //All other infos are system dependant
+            println("Version is $vi")
         }
     }
 }

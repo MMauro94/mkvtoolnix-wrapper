@@ -11,19 +11,35 @@ import java.math.BigInteger
 /**
  * Class to create a `mkvpropedit` command
  * @param sourceFile the file that needs to be modified
- * @param parseMode the parse mode. Defaults to [MkvPropEditParseMode.FAST]
- * @param verbose `--verbose`/`-v` option. Be verbose and show all the important Matroska™ elements as they're read.
- * @param abortOnWarnings `--abort-on-warnings` option. Tells the program to abort after the first warning is emitted. The program's exit code will be 1.
  */
-class MkvPropEditCommand @JvmOverloads constructor(
-    val sourceFile: File,
-    val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST,
-    var verbose: Boolean = false,
-    var abortOnWarnings: Boolean = false
+class MkvPropEditCommand(
+    val sourceFile: File
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
+    object GlobalOptions : CommandArgs {
+        /**
+         * `--parse-mode` option. The parse mode. Defaults to [MkvPropEditParseMode.FAST]
+         * @see MkvPropEditParseMode
+         */
+        val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST
+        /** `--verbose`/`-v` option. Be verbose and show all the important Matroska™ elements as they're read. */
+        var verbose: Boolean = false
+        /** `--abort-on-warnings` option. Tells the program to abort after the first warning is emitted. The program's exit code will be 1. */
+        var abortOnWarnings: Boolean = false
+
+        override fun commandArgs(): List<String> = ArrayList<String>().apply {
+            if (verbose) {
+                add("--verbose")
+            }
+            if (abortOnWarnings) {
+                add("--abort-on-warnings")
+            }
+            add(parseMode)
+        }
+    }
+
     /** List of actions that will be performed in the source file */
-    val actions : MutableList<MkvPropEditCommandAction> = ArrayList()
+    val actions: MutableList<MkvPropEditCommandAction> = ArrayList()
 
     //region PROPERTY EDIT
     //region track
@@ -427,14 +443,15 @@ class MkvPropEditCommand @JvmOverloads constructor(
     //endregion
     //endregion
 
+    /**
+     * @param f lambda that changes the global options
+     */
+    fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
+        f(GlobalOptions)
+    }
+
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
-        if (verbose) {
-            add("--verbose")
-        }
-        if (abortOnWarnings) {
-            add("--abort-on-warnings")
-        }
-        add(parseMode)
+        add(GlobalOptions)
         add(sourceFile.absolutePath.toString())
         actions.forEach { add(it) }
     }

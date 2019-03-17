@@ -14,6 +14,9 @@ class PropEditTest {
     @Test fun testPropEditTracks() {
         copyFileForEdit { file ->
             MkvPropEditCommand(file)
+                .globalOptions {
+                    verbose = true
+                }
                 .editTrackPropertiesByUid(1.toBigInteger()) {
                     setLanguage("ita")
                     setName("coolvid")
@@ -88,6 +91,9 @@ class PropEditTest {
 
         copyFileForEdit { file ->
             MkvPropEditCommand(file)
+                .globalOptions {
+                    verbose = true
+                }
                 .updateAttachmentByMimeType("text/plain") {
                     mimeType = MIME_TYPE
                 }
@@ -126,6 +132,9 @@ class PropEditTest {
         copyFileForEdit { file ->
             createDummyAttachment { att ->
                 MkvPropEditCommand(file)
+                    .globalOptions {
+                        verbose = true
+                    }
                     .replaceAttachmentById(1, att) {
                         description = DESCRIPTION
                     }
@@ -156,6 +165,9 @@ class PropEditTest {
         copyFileForEdit { file ->
             createDummyAttachment { att ->
                 MkvPropEditCommand(file)
+                    .globalOptions {
+                        verbose = true
+                    }
                     .addAttachment(att) {
                         name = NAME
                         description = DESCRIPTION
