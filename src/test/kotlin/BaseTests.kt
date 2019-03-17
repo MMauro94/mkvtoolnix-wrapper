@@ -1,4 +1,5 @@
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnix
+import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixBinary
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixLanguage
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -47,5 +48,13 @@ class BaseTests {
             assertEquals(EXPECTED_IDENTIFICATION, this)
         }
         println("OK")
+    }
+
+    @Test fun testVersionInfo() {
+        MkvToolnixBinary.values().forEach {
+            val vi = it.getVersionInfo()
+            assertEquals(it.binaryName, vi.programName)
+            //All other infos are system dependant
+        }
     }
 }
