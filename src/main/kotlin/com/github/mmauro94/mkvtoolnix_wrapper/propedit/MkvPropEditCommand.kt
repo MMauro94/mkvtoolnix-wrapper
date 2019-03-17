@@ -456,32 +456,9 @@ class MkvPropEditCommand(
         actions.forEach { add(it) }
     }
 
-    companion object {
-        private const val WARNING_PREFIX = "WARNING:"
-        private const val ERROR_PREFIX = "ERROR:"
-    }
+
 
     override val exceptionInitializer = ::MkvPropEditException
 
-    override fun executeLazy(): MkvToolnixCommandResult.Lazy<MkvPropEditCommand> {
-        val p = processBuilder().apply {
-            redirectErrorStream(true)
-        }.start()
-
-        val reader = BufferedReader(InputStreamReader(p.inputStream))
-        val output = reader.lineSequence().map { line ->
-            val (msg, type) = if (line.startsWith(WARNING_PREFIX)) {
-                line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
-            } else if (line.startsWith(ERROR_PREFIX)) {
-                line.substring(ERROR_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.ERROR
-            } else {
-                line to MkvToolnixCommandResult.Line.Type.INFO
-            }
-            if (type != MkvToolnixCommandResult.Line.Type.INFO || msg.isNotBlank()) {
-                MkvToolnixCommandResult.Line(msg, type)
-            } else null
-        }.filterNotNull().asCachedSequence()
-
-        return MkvToolnixCommandResult.Lazy(this, reader, { p.waitFor() }, output)
-    }
+    override fun me()= this
 }

@@ -20,6 +20,7 @@ class BaseTests {
             assertTrue(size > 250, "Less than 250 languages? Hmmm...")
             assertTrue(containsKey("und"), "Not found language 'und'")
             assertTrue(containsKey("eng"), "Not found language 'eng'")
+            assertTrue(containsKey("spa"), "Not found language 'spa'")
 
             forEach { (k, l) ->
                 assertEquals(k, l.iso639_2, "Language not mapped correctly")

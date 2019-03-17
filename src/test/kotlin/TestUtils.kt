@@ -2,6 +2,7 @@ import com.github.mmauro94.mkvtoolnix_wrapper.*
 import java.awt.Dimension
 import java.io.File
 import java.math.BigInteger
+import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -55,7 +56,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     displayUnit = 0,
                     enabledTrack = true,
                     forcedTrack = false,
-                    language = MkvToolnixLanguage.all["und"],
+                    language = MkvToolnixLanguage.all.getValue("und"),
                     minimumTimestamp = Duration.ofMillis(67),
                     number = 1,
                     packetizer = "mpegh_p2_video",
@@ -76,7 +77,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     defaultTrack = true,
                     enabledTrack = true,
                     forcedTrack = false,
-                    language = MkvToolnixLanguage.all["eng"],
+                    language = MkvToolnixLanguage.all.getValue("eng"),
                     minimumTimestamp = Duration.ZERO,
                     number = 2,
                     trackName = "test audio 1",
@@ -95,7 +96,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     defaultTrack = false,
                     enabledTrack = true,
                     forcedTrack = false,
-                    language = MkvToolnixLanguage.all["ita"],
+                    language = MkvToolnixLanguage.all.getValue("ita"),
                     minimumTimestamp = Duration.ZERO,
                     number = 3,
                     trackName = "test audio 2",
@@ -113,7 +114,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     enabledTrack = true,
                     encoding = "UTF-8",
                     forcedTrack = false,
-                    language = MkvToolnixLanguage.all["eng"],
+                    language = MkvToolnixLanguage.all.getValue("eng"),
                     minimumTimestamp = Duration.ZERO,
                     textSubtitles = true,
                     number = 4,
@@ -132,7 +133,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     enabledTrack = true,
                     encoding = "UTF-8",
                     forcedTrack = false,
-                    language = MkvToolnixLanguage.all["ita"],
+                    language = MkvToolnixLanguage.all.getValue("ita"),
                     minimumTimestamp = Duration.ofSeconds(1),
                     textSubtitles = true,
                     number = 5,
@@ -149,5 +150,14 @@ fun MkvToolnixCommand<*>.executeAndAssert() {
     executeAndPrint(true).apply {
         assertTrue(success, "Command exited with code: $exitCode")
     }
+}
 
+fun <R> File.deleteAfter(f: (File) -> R): R {
+    try {
+        return f(this)
+    } finally {
+        if (exists()) {
+            Files.delete(toPath())
+        }
+    }
 }

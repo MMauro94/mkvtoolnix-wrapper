@@ -26,7 +26,7 @@ class MkvToolnixLanguage internal constructor(
     companion object {
 
         private val LANGUAGE_LINE_PATTERN =
-            Pattern.compile("^\\s*([^\\s]+)\\s+\\|\\s*([a-z]{3})\\s*\\|\\s*([a-z]{2})?\\s*$")!!
+            Pattern.compile("^\\s*([^|]+)\\s+\\|\\s*([a-z]{3})\\s*\\|\\s*([a-z]{2})?\\s*$")!!
 
         /**
          * Map of all the available languages in `mkvmerge`

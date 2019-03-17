@@ -43,7 +43,7 @@ class PropEditTest {
                     EXPECTED_IDENTIFICATION.tracks[0].run {
                         copy(
                             properties = properties?.copy(
-                                language = MkvToolnixLanguage.all["ita"],
+                                language = MkvToolnixLanguage.all.getValue("ita"),
                                 trackName = "coolvid"
                             )
                         )
@@ -65,7 +65,7 @@ class PropEditTest {
                     EXPECTED_IDENTIFICATION.tracks[3].run {
                         copy(
                             properties = properties?.copy(
-                                language = MkvToolnixLanguage.all["und"],
+                                language = MkvToolnixLanguage.all.getValue("und"),
                                 defaultTrack = true
                             )
                         )
@@ -206,31 +206,27 @@ class PropEditTest {
                 .deleteAttachmentByMimeType("text/plain")
                 .executeAndAssert()
 
-            assertEquals(EXPECTED_IDENTIFICATION.copy(
-                fileName = file.absoluteFile,
-                attachments = emptyList()
-            ), MkvToolnix.identify(file))
+            assertEquals(
+                EXPECTED_IDENTIFICATION.copy(
+                    fileName = file.absoluteFile,
+                    attachments = emptyList()
+                ), MkvToolnix.identify(file)
+            )
         }
     }
 
     private fun <R> createDummyAttachment(f: (File) -> R): R {
         val da = File("dummy_attachment")
         Files.createFile(da.toPath())
-        try {
-            da.writeText("hello")
-            return f(da)
-        } finally {
-            Files.delete(da.toPath())
+        return da.deleteAfter {
+            it.writeText("hello")
+            f(it)
         }
     }
 
     private fun <R> copyFileForEdit(f: (File) -> R): R {
         val fileToEdit = File("test_copy.mkv")
         Files.copy(TEST_FILE.toPath(), fileToEdit.toPath())
-        try {
-            return f(fileToEdit)
-        } finally {
-            Files.delete(fileToEdit.toPath())
-        }
+        return fileToEdit.deleteAfter(f)
     }
 }

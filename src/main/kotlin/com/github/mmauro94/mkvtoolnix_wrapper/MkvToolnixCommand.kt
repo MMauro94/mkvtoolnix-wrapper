@@ -1,5 +1,10 @@
 package com.github.mmauro94.mkvtoolnix_wrapper
 
+import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
+import com.github.mmauro94.mkvtoolnix_wrapper.utils.asCachedSequence
+import java.io.BufferedReader
+import java.io.InputStreamReader
+
 /**
  * Represents an command for one of the binaries of MKV Toolnix
  * @param binary the binary that this command is linked to
@@ -23,7 +28,28 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
      *
      * @return the lazy result
      */
-    abstract fun executeLazy(): MkvToolnixCommandResult.Lazy<SELF>
+    fun executeLazy(): MkvToolnixCommandResult.Lazy<SELF> {
+        val p = processBuilder().apply {
+            redirectErrorStream(true)
+        }.start()
+
+        val reader = BufferedReader(InputStreamReader(p.inputStream))
+        val output = reader.lineSequence().map { line ->
+            val (msg, type) = if (line.startsWith(WARNING_PREFIX)) {
+                line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
+            } else if (line.startsWith(ERROR_PREFIX)) {
+                line.substring(ERROR_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.ERROR
+            } else {
+                line to MkvToolnixCommandResult.Line.Type.INFO
+            }
+            if (type != MkvToolnixCommandResult.Line.Type.INFO || msg.isNotBlank()) {
+                MkvToolnixCommandResult.Line(msg, type)
+            } else null
+        }.filterNotNull().asCachedSequence()
+        return MkvToolnixCommandResult.Lazy(me(), reader, { p.waitFor() }, output)
+    }
+
+    protected abstract fun me() : SELF
 
     /**
      * Executes the command and waits for its completion.
@@ -46,4 +72,9 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
     }
 
     protected abstract val exceptionInitializer: ExceptionInitializer<SELF>
+
+    companion object {
+        private const val WARNING_PREFIX = "WARNING:"
+        private const val ERROR_PREFIX = "ERROR:"
+    }
 }

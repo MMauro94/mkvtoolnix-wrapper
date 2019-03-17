@@ -2,7 +2,9 @@ package com.github.mmauro94.mkvtoolnix_wrapper.merge
 
 import com.github.mmauro94.mkvtoolnix_wrapper.*
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandException.MkvMergeException
+import com.github.mmauro94.mkvtoolnix_wrapper.utils.toInt
 import java.io.File
+import java.time.Duration
 
 class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>(MkvToolnixBinary.MKV_MERGE) {
 
@@ -33,7 +35,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
 
     class InputFile(val file: File) : CommandArgs {
 
-        class TracksCommand(val typeCommand: String, val excludeAllCommand: String) : CommandArgs {
+        class CopyTracksCommand(val typeCommand: String, val excludeAllCommand: String) : CommandArgs {
 
             enum class Mode { INCLUDE, EXCLUDE }
 
@@ -106,12 +108,81 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             }
         }
 
-        val videoTracks = TracksCommand("--audio-tracks", "--no-audio")
-        val audioTracks = TracksCommand("--video-tracks", "--no-video")
-        val subtitleTracks = TracksCommand("--subtitle-tracks", "--no-subtitles")
-        val buttonTracks = TracksCommand("--button-track", "--no-buttons")
-        val trackTags = TracksCommand("--track-tags", "--no-track-tags")
+        class TrackOption(val trackId: Long) : CommandArgs {
 
+            val isEditingAllTracks = trackId == -2L
+
+            class Sync(val offset: Duration, val linearDriftFixRatio: Pair<Float, Float?>?) {
+
+                fun arg(trackId: Long) = arrayOf(
+                    "--sync",
+                    StringBuilder().apply {
+                        append("$trackId:${offset.toMillis()}")
+                        if (linearDriftFixRatio != null) {
+                            val (o, p) = linearDriftFixRatio
+                            append(",$o")
+                            if (p != null) {
+                                append("/$p")
+                            }
+                        }
+                    }.toString()
+                )
+            }
+
+            var sync: Sync? = null
+            var isDefault: Boolean? = null
+            var isForced: Boolean? = null
+            var name: String? = null
+            var language: MkvToolnixLanguage? = null
+
+
+            fun sync(offset: Duration, linearDriftFixRatio: Pair<Float, Float?>? = null) = apply {
+                sync = Sync(offset, linearDriftFixRatio)
+            }
+
+            fun language(iso639_2: String) = apply {
+                language = MkvToolnixLanguage.all.getValue(iso639_2)
+            }
+
+            override fun commandArgs(): List<String> = ArrayList<String>().apply {
+                sync?.let {
+                    add(*it.arg(trackId))
+                }
+                isDefault?.let {
+                    add("--default-track")
+                    add("$trackId:${it.toInt()}")
+                }
+                isForced?.let {
+                    add("--forced-track")
+                    add("$trackId:${it.toInt()}")
+                }
+                name?.let {
+                    add("--track-name")
+                    add("$trackId:$it")
+                }
+                language?.let {
+                    add("--language")
+                    add("$trackId:${it.iso639_2}")
+                }
+            }
+        }
+
+
+        val videoTracks = CopyTracksCommand("--video-tracks", "--no-audio")
+        val audioTracks = CopyTracksCommand("--audio-tracks", "--no-video")
+        val subtitleTracks = CopyTracksCommand("--subtitle-tracks", "--no-subtitles")
+        val buttonTracks = CopyTracksCommand("--button-track", "--no-buttons")
+        val trackTags = CopyTracksCommand("--track-tags", "--no-track-tags")
+
+        val trackOptions: MutableMap<Long, TrackOption> = HashMap()
+
+        fun editTrackById(trackId: Long, f: TrackOption.() -> Unit) = apply {
+            trackOptions.getOrPut(trackId) { TrackOption(trackId) }.apply(f)
+        }
+
+        fun editTrack(track: MkvToolnixTrack, f: TrackOption.() -> Unit) = editTrackById(track.id, f)
+
+        fun editAllTracks(f: TrackOption.() -> Unit) = editTrackById(-2, f)
 
         override fun commandArgs(): List<String> = ArrayList<String>().apply {
             add(videoTracks)
@@ -119,6 +190,8 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             add(subtitleTracks)
             add(buttonTracks)
             add(trackTags)
+            trackOptions.values.forEach { add(it) }
+            add(file.absolutePath)
         }
 
     }
@@ -135,9 +208,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
         inputFiles.forEach { add(it) }
     }
 
-    override fun executeLazy(): MkvToolnixCommandResult.Lazy<MkvMergeCommand> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun me() = this
 
     override val exceptionInitializer = ::MkvMergeException
 }
