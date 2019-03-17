@@ -49,7 +49,7 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
      * WARNING: Evaluating this variable in the [Lazy] implementation causes the method to halt until the process finishes
      */
     val success by lazy {
-        exitCode == 1 && !(output.hasErrors() || output.hasWarnings())
+        exitCode == 0 && !(output.hasErrors() || output.hasWarnings())
     }
 
     private fun outputLines(printCommand: Boolean, printOutput: Boolean, printExitCode: Boolean): Sequence<String> {

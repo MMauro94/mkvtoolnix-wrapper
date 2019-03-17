@@ -1,5 +1,6 @@
 package com.github.mmauro94.mkvtoolnix_wrapper.json
 
+import com.beust.klaxon.JsonValue
 import com.beust.klaxon.Klaxon
 
 internal fun klaxon() = Klaxon()
@@ -12,3 +13,4 @@ internal fun klaxon() = Klaxon()
     .fieldConverter(KlaxonBigInteger::class, BigIntegerConverter)
 
 
+internal fun JsonValue.long() : Long? = int?.toLong() ?: longValue

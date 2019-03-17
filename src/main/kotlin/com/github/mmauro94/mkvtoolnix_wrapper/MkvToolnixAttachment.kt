@@ -1,7 +1,7 @@
 package com.github.mmauro94.mkvtoolnix_wrapper
 
 import com.beust.klaxon.Json
-import java.io.File
+import com.github.mmauro94.mkvtoolnix_wrapper.json.KlaxonBigInteger
 import java.math.BigInteger
 
 data class MkvToolnixAttachment(
@@ -13,13 +13,13 @@ data class MkvToolnixAttachment(
     val description: String? = null,
 
     @Json("file_name")
-    val fileName: File,
+    val fileName: String,
 
     @Json("id")
     val id: Long,
 
     @Json("size")
-    val size: Int,
+    val size: Long,
 
     @Json("properties")
     val properties: Properties,
@@ -30,6 +30,7 @@ data class MkvToolnixAttachment(
 
     data class Properties(
         @Json("uid")
+        @KlaxonBigInteger
         val uid: BigInteger
     )
 }

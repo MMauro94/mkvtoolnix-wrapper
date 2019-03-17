@@ -27,7 +27,7 @@ sealed class MkvPropEditCommandAttachmentEditAction : MkvPropEditCommandAction {
                 add(it)
             }
             uid?.let {
-                add("attachment-uid")
+                add("--attachment-uid")
                 add(it.toString())
             }
         }

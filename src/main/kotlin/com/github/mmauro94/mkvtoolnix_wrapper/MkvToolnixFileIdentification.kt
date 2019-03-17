@@ -8,7 +8,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
-class MkvToolnixFileIdentification(
+data class MkvToolnixFileIdentification(
     @Json("attachments")
     val attachments: List<MkvToolnixAttachment>,
 

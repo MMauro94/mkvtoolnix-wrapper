@@ -110,7 +110,7 @@ data class MkvToolnixTrack(
         @Json("multiplexed_tracks")
         val multiplexedTracks: List<Int>? = null,
 
-        @Json("position")
+        @Json("number")
         val number: Int? = null,
 
         @Json("packetizer")

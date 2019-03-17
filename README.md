@@ -6,6 +6,7 @@ Still WIP
 
 # Examples
 ## Example of mkpropedit command
-```kotlin
 
-```
+
+# Credits
+Thanks to [jell.yfish.us](http://jell.yfish.us) for test video.

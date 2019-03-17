@@ -30,7 +30,7 @@ data class MkvToolnixContainer(
         val dateUtc: Instant? = null,
 
         @Json("duration")
-        val duration: Duration?,
+        val duration: Duration? = null,
 
         @Json("is_providing_timestamps")
         val isProvidingTimestamps: Boolean? = null,

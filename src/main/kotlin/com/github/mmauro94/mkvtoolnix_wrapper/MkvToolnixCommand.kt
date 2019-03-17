@@ -39,8 +39,10 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
     /**
      * Executes the command while printing the output to the standard output. Useful for CLI applications.
      */
-    fun executeAndPrint() {
-        executeLazy().print()
+    fun executeAndPrint(printCommand: Boolean = false, printOutput: Boolean = true, printExitCode: Boolean = true) : MkvToolnixCommandResult.Sync<SELF> {
+        return executeLazy().apply {
+            print(printCommand, printOutput, printExitCode)
+        }.toSync()
     }
 
     protected abstract val exceptionInitializer: ExceptionInitializer<SELF>

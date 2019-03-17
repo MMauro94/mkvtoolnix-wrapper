@@ -9,7 +9,7 @@ internal object BigIntegerConverter : Converter {
 
     override fun canConvert(cls: Class<*>) = cls == BigInteger::class.java
 
-    override fun fromJson(jv: JsonValue) = jv.bigInteger
+    override fun fromJson(jv: JsonValue) = jv.long()?.toBigInteger() ?: jv.bigInteger
 
     override fun toJson(value: Any): String {
         return if (value is BigInteger) value.toString()

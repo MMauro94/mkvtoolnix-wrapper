@@ -15,11 +15,11 @@ import java.math.BigInteger
  * @param verbose `--verbose`/`-v` option. Be verbose and show all the important Matroska™ elements as they're read.
  * @param abortOnWarnings `--abort-on-warnings` option. Tells the program to abort after the first warning is emitted. The program's exit code will be 1.
  */
-class MkvPropEditCommand(
+class MkvPropEditCommand @JvmOverloads constructor(
     val sourceFile: File,
     val parseMode: MkvPropEditParseMode = MkvPropEditParseMode.FAST,
-    var verbose : Boolean = false,
-    var abortOnWarnings : Boolean = false
+    var verbose: Boolean = false,
+    var abortOnWarnings: Boolean = false
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
     /** List of actions that will be performed in the source file */
@@ -85,11 +85,11 @@ class MkvPropEditCommand(
      * @see editTrackProperties
      * @see MkvToolnixTrackSelector.PositionSelector
      */
-    fun editTrackByPropertiesPosition(
+    fun editTrackByPropertiesByPosition(
         position: Int,
         f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.PositionSelector>.() -> Unit
     ): MkvPropEditCommand {
-        return editTrackByPropertiesPosition(position, null, f)
+        return editTrackByPropertiesByPosition(position, null, f)
     }
 
     /**
@@ -99,7 +99,7 @@ class MkvPropEditCommand(
      * @see editTrackProperties
      * @see MkvToolnixTrackSelector.PositionSelector
      */
-    fun editTrackByPropertiesPosition(
+    fun editTrackByPropertiesByPosition(
         position: Int,
         trackType: MkvToolnixTrackType?,
         f: MkvPropEditCommandPropertyEditAction<MkvToolnixTrackSelector.PositionSelector>.() -> Unit

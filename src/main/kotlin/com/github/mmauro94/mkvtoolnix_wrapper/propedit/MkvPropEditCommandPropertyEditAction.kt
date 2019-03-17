@@ -135,6 +135,13 @@ fun <T : MkvToolnixTrackSelector> MkvPropEditCommandPropertyEditAction<T>.setIsD
     set("flag-default", if (isDefault) "1" else "0")
 
 /**
+ * Sets whether this track is a forced track.
+ * @param isForced the `flag-forced` value
+ */
+fun <T : MkvToolnixTrackSelector> MkvPropEditCommandPropertyEditAction<T>.setIsForced(isForced: Boolean) =
+    set("flag-forced", if (isForced) "1" else "0")
+
+/**
  * Sets whether this track is an enabled.
  * @param isEnabled the `flag-enabled` value
  */

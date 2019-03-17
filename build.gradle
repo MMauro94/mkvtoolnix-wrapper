@@ -20,6 +20,7 @@ dependencies {
     implementation 'com.beust:klaxon:5.0.5'
 
     testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect"
 }
 
 compileKotlin {
