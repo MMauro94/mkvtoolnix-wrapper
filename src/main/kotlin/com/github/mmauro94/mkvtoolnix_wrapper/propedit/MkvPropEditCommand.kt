@@ -113,6 +113,7 @@ class MkvPropEditCommand @JvmOverloads constructor(
      * Edit the properties for the segment info.
      * The lambda parameter works the same as in [editTrackProperties]
      * @param f lambda that fills the provided [MkvPropEditCommandPropertyEditAction] to set what properties to edit.
+     * @see SegmentInfoSelector
      */
     fun editSegmentInfo(f: MkvPropEditCommandPropertyEditAction<SegmentInfoSelector>.() -> Unit) {
         actions.add(MkvPropEditCommandPropertyEditAction(SegmentInfoSelector).apply(f))
@@ -121,6 +122,20 @@ class MkvPropEditCommand @JvmOverloads constructor(
 
     //region ATTACHMENT
     //region add
+    /**
+     * Adds an attachment.
+     *
+     * ```kotlin
+     * MkvPropEditCommand(File("..."))
+     *  .addAttachment(File("poster.png")) { //<- lambda to set object properties
+     *      name = "main poster"
+     *      description = "the movie poster"
+     *      mimeType = "image/png"
+     *  }
+     * ```
+     * @param file the attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     */
     fun addAttachment(
         file: File,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Add.() -> Unit = {}
@@ -131,6 +146,20 @@ class MkvPropEditCommand @JvmOverloads constructor(
     //endregion
 
     //region replace
+    /**
+     * Replace an already existing attachment.
+     *
+     * ```kotlin
+     * MkvPropEditCommand(File("..."))
+     *  .replaceAttachment(attachment, File("new attachment.png")) { //<- lambda to set object properties
+     *      name = "new name"
+     *  }
+     * ```
+     * @param attachment the attachment to replace
+     * @param file the new attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see MkvToolnixAttachmentSelector.ofAttachment
+     */
     fun replaceAttachment(
         attachment: MkvToolnixAttachment,
         file: File,
@@ -144,6 +173,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Replace an already existing attachment by its id.
+     * @param id the id of the attachment to replace
+     * @param file the new attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see replaceAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentIdSelector
+     */
     fun replaceAttachmentById(
         id: Long,
         file: File,
@@ -157,6 +194,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Replace an already existing attachment by its UID.
+     * @param uid the UID of the attachment to replace
+     * @param file the new attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see replaceAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentUidSelector
+     */
     fun replaceAttachmentByUid(
         uid: BigInteger,
         file: File,
@@ -170,6 +215,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Replace an already existing attachment by its name.
+     * @param name the name of the attachment to replace
+     * @param file the new attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see replaceAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentNameSelector
+     */
     fun replaceAttachmentByName(
         name: String, file: File, f: MkvPropEditCommandAttachmentEditAction.WithProperties.Replace.() -> Unit = {}
     ) = apply {
@@ -181,6 +234,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Replace an already existing attachment by its mime type.
+     * @param mimeType the mime type of the attachment to replace
+     * @param file the new attachment
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see replaceAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector
+     */
     fun replaceAttachmentByMimeType(
         mimeType: String,
         file: File,
@@ -196,6 +257,20 @@ class MkvPropEditCommand @JvmOverloads constructor(
     //endregion
 
     //region update
+    /**
+     * Updates an already existing attachment.
+     *
+     * ```kotlin
+     * MkvPropEditCommand(File("..."))
+     *  .updateAttachment(attachment) { //<- lambda to set object properties
+     *      name = "new name"
+     *      description = "new description"
+     *  }
+     * ```
+     * @param attachment the attachment to replace
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see MkvToolnixAttachmentSelector.ofAttachment
+     */
     fun updateAttachment(
         attachment: MkvToolnixAttachment,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit = {}
@@ -207,6 +282,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Updates an already existing attachment by its id.
+
+     * @param id the id of the attachment to replace
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see updateAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentIdSelector
+     */
     fun updateAttachmentById(
         id: Long,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
@@ -218,6 +301,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Updates an already existing attachment by its UID.
+
+     * @param uid the UID of the attachment to replace
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see updateAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentUidSelector
+     */
     fun updateAttachmentByUid(
         uid: BigInteger,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
@@ -229,6 +320,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Updates an already existing attachment by its name.
+
+     * @param name the name of the attachment to replace
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see updateAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentNameSelector
+     */
     fun updateAttachmentByName(
         name: String,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
@@ -240,6 +339,14 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Updates an already existing attachment by its mime type.
+
+     * @param mimeType the mime type of the attachment to replace
+     * @param f lambda that fills the provided [MkvPropEditCommandAttachmentEditAction] to set the attachment info.
+     * @see updateAttachment
+     * @see MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector
+     */
     fun updateAttachmentByMimeType(
         mimeType: String,
         f: MkvPropEditCommandAttachmentEditAction.WithProperties.Update.() -> Unit
@@ -253,6 +360,11 @@ class MkvPropEditCommand @JvmOverloads constructor(
     //endregion
 
     //region delete
+    /**
+     * Deletes an attachment.
+     * @param attachment the attachment to delete
+     * @see MkvToolnixAttachmentSelector.ofAttachment
+     */
     fun deleteAttachment(attachment: MkvToolnixAttachment) = apply {
         actions.add(
             MkvPropEditCommandAttachmentEditAction.Delete(
@@ -261,6 +373,11 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Deletes an attachment by its id.
+     * @param id the id of the attachment to delete.
+     * @see MkvToolnixAttachmentSelector.AttachmentIdSelector
+     */
     fun deleteAttachmentById(id: Long) = apply {
         actions.add(
             MkvPropEditCommandAttachmentEditAction.Delete(
@@ -269,6 +386,11 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Deletes an attachment by its UID.
+     * @param uid the UID of the attachment to delete.
+     * @see MkvToolnixAttachmentSelector.AttachmentUidSelector
+     */
     fun deleteAttachmentByUid(uid: BigInteger) = apply {
         actions.add(
             MkvPropEditCommandAttachmentEditAction.Delete(
@@ -277,6 +399,11 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Deletes an attachment by its name.
+     * @param name the name of the attachment to delete.
+     * @see MkvToolnixAttachmentSelector.AttachmentNameSelector
+     */
     fun deleteAttachmentByName(name: String) = apply {
         actions.add(
             MkvPropEditCommandAttachmentEditAction.Delete(
@@ -285,6 +412,11 @@ class MkvPropEditCommand @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Deletes an attachment by its mime type.
+     * @param mimeType the mime type of the attachment to delete.
+     * @see MkvToolnixAttachmentSelector.AttachmentMimeTypeSelector
+     */
     fun deleteAttachmentByMimeType(mimeType: String) = apply {
         actions.add(
             MkvPropEditCommandAttachmentEditAction.Delete(
@@ -321,7 +453,6 @@ class MkvPropEditCommand @JvmOverloads constructor(
 
         val reader = BufferedReader(InputStreamReader(p.inputStream))
         val output = reader.lineSequence().map { line ->
-            Thread.sleep(500)
             val (msg, type) = if (line.startsWith(WARNING_PREFIX)) {
                 line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
             } else if (line.startsWith(ERROR_PREFIX)) {
