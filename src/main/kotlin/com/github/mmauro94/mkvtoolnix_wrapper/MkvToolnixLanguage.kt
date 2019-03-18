@@ -39,7 +39,7 @@ class MkvToolnixLanguage internal constructor(
                     for (line in input.lines().skip(2)) {
                         val match = LANGUAGE_LINE_PATTERN.matcher(line)
                         if (match.matches()) {
-                            MkvToolnixLanguage(match.group(1), match.group(3), match.group(2)).let {
+                            MkvToolnixLanguage(match.group(1).trim(), match.group(3), match.group(2)).let {
                                 put(it.iso639_2, it)
                             }
                         }
