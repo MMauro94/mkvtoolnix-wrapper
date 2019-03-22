@@ -80,7 +80,7 @@ data class MkvToolnixTrack(
         @Json("codec_encoding_algorithms")
         val codecEncodingAlgorithms: String? = null,
 
-        @Json("default_location")
+        @Json("default_duration")
         val defaultDuration: Duration? = null,
 
         @Json("default_track")

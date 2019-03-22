@@ -215,15 +215,10 @@ class PropEditTest {
         }
     }
 
-    private fun <R> createDummyAttachment(f: (File) -> R): R {
-        val da = File("dummy_attachment")
-        Files.createFile(da.toPath())
-        return da.deleteAfter {
-            it.writeText("hello")
-            f(it)
-        }
-    }
 
+    /**
+     * Copies the test file, calls the callback and then deletes it
+     */
     private fun <R> copyFileForEdit(f: (File) -> R): R {
         val fileToEdit = File("test_copy.mkv")
         Files.copy(TEST_FILE.toPath(), fileToEdit.toPath())

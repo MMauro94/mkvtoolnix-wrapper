@@ -8,9 +8,10 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.test.assertTrue
 
-val TEST_FILE = File("src/test/resources/test.mkv")
+/** The test file used to do the testing */
+internal val TEST_FILE = File("src/test/resources/test.mkv")
 /** The expected identification information given by the test file */
-val EXPECTED_IDENTIFICATION by lazy {
+internal val EXPECTED_IDENTIFICATION by lazy {
     MkvToolnixFileIdentification(
         attachments = listOf(
             MkvToolnixAttachment(
@@ -51,6 +52,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     codecId = "V_MPEGH/ISO/HEVC",
                     codecPrivateData = "01022000000090000000000078f000fffdfafa00000f03a00001001940010c01ffff022000000300900000030000030078998a0240a10001002b420101022000000300900000030000030078a003c08010e4d96662a490846bc0404000001900000302ed42a2000100074401c176b66240",
                     codecPrivateLength = 113,
+                    defaultDuration = Duration.ofNanos(33366666),
                     defaultTrack = true,
                     displayDimensions = Dimension(1920, 1080),
                     displayUnit = 0,
@@ -74,6 +76,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     audioSamplingFrequency = 22050,
                     codecId = "A_MPEG/L3",
                     codecPrivateLength = 0,
+                    defaultDuration = Duration.ofNanos(26122448),
                     defaultTrack = true,
                     enabledTrack = true,
                     forcedTrack = false,
@@ -93,6 +96,7 @@ val EXPECTED_IDENTIFICATION by lazy {
                     audioSamplingFrequency = 44100,
                     codecId = "A_MPEG/L3",
                     codecPrivateLength = 0,
+                    defaultDuration = Duration.ofNanos(26122448),
                     defaultTrack = false,
                     enabledTrack = true,
                     forcedTrack = false,
@@ -143,21 +147,40 @@ val EXPECTED_IDENTIFICATION by lazy {
             )
         ),
         warnings = emptyList()
-    )
+    ).applyInfoToTracks()
 }
 
-fun MkvToolnixCommand<*>.executeAndAssert() {
+/**
+ * Executes the command printing everything on standard output, and asserting that the command succeeds
+ */
+internal fun MkvToolnixCommand<*>.executeAndAssert() {
     executeAndPrint(true).apply {
         assertTrue(success, "Command exited with code: $exitCode")
     }
 }
 
-fun <R> File.deleteAfter(f: (File) -> R): R {
+/**
+ * Deletes `this` file after calling the provided callback
+ */
+internal fun <R> File.deleteAfter(f: (File) -> R): R {
     try {
         return f(this)
     } finally {
         if (exists()) {
             Files.delete(toPath())
         }
+    }
+}
+
+
+/**
+ * Creates a dummy file to be attached, calls the callback and delete deletes it
+ */
+internal fun <R> createDummyAttachment(f: (File) -> R): R {
+    val da = File("dummy_attachment")
+    Files.createFile(da.toPath())
+    return da.deleteAfter {
+        it.writeText("hello")
+        f(it)
     }
 }

@@ -8,7 +8,7 @@ import java.time.Duration
 
 class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>(MkvToolnixBinary.MKV_MERGE) {
 
-    object GlobalOptions : CommandArgs {
+    class GlobalOptions : CommandArgs {
 
         var verbose = false
         var webm = false
@@ -31,6 +31,42 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
                 add(it)
             }
         }
+    }
+
+    val globalOptions = GlobalOptions()
+
+    /**
+     * @param f lambda that changes the global options
+     */
+    fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
+        f(globalOptions)
+    }
+
+
+    class OutputControl : CommandArgs {
+        /**
+         * This option changes the order in which the tracks for an input file are created.
+         * Each pair contains first the file ID (FID1) which is simply the index of the input file starting at 0. The second is a track ID (TID1) from that file.
+         * If some track IDs are omitted then those tracks are created after the ones given with this option have been created.
+         * If the list is empty, the command will not be put.
+         */
+        val trackOrder = mutableListOf<Pair<Int, Int>>()
+
+        override fun commandArgs(): List<String> = ArrayList<String>().apply {
+            if (trackOrder.isNotEmpty()) {
+                add("--track-order")
+                add(trackOrder.joinToString(",") { "${it.first}:${it.second}" })
+            }
+        }
+    }
+
+    val outputControl = OutputControl()
+
+    /**
+     * @param f lambda that changes the global options
+     */
+    fun outputControl(f: OutputControl.() -> Unit) = apply {
+        f(outputControl)
     }
 
     class InputFile(val file: File) : CommandArgs {
@@ -108,7 +144,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             }
         }
 
-        class TrackOption(val trackId: Long) : CommandArgs {
+        class TrackOptions(val trackId: Long) : CommandArgs {
 
             val isEditingAllTracks = trackId == -2L
 
@@ -168,21 +204,38 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
         }
 
 
-        val videoTracks = CopyTracksCommand("--video-tracks", "--no-audio")
-        val audioTracks = CopyTracksCommand("--audio-tracks", "--no-video")
+        val videoTracks = CopyTracksCommand("--video-tracks", "--no-video")
+        val audioTracks = CopyTracksCommand("--audio-tracks", "--no-audio")
         val subtitleTracks = CopyTracksCommand("--subtitle-tracks", "--no-subtitles")
         val buttonTracks = CopyTracksCommand("--button-track", "--no-buttons")
+
         val trackTags = CopyTracksCommand("--track-tags", "--no-track-tags")
 
-        val trackOptions: MutableMap<Long, TrackOption> = HashMap()
+        val trackOptions: MutableMap<Long, TrackOptions> = HashMap()
 
-        fun editTrackById(trackId: Long, f: TrackOption.() -> Unit) = apply {
-            trackOptions.getOrPut(trackId) { TrackOption(trackId) }.apply(f)
+        fun excludeAllTracks() = apply {
+            videoTracks.excludeAll()
+            audioTracks.excludeAll()
+            subtitleTracks.excludeAll()
+            buttonTracks.excludeAll()
         }
 
-        fun editTrack(track: MkvToolnixTrack, f: TrackOption.() -> Unit) = editTrackById(track.id, f)
+        fun tracksByType(type: MkvToolnixTrackType) : CopyTracksCommand {
+            return when(type) {
+                MkvToolnixTrackType.audio -> audioTracks
+                MkvToolnixTrackType.video -> videoTracks
+                MkvToolnixTrackType.button -> buttonTracks
+                MkvToolnixTrackType.subtitles -> subtitleTracks
+            }
+        }
 
-        fun editAllTracks(f: TrackOption.() -> Unit) = editTrackById(-2, f)
+        fun editTrackById(trackId: Long, f: TrackOptions.() -> Unit) = apply {
+            trackOptions.getOrPut(trackId) { TrackOptions(trackId) }.apply(f)
+        }
+
+        fun editTrack(track: MkvToolnixTrack, f: TrackOptions.() -> Unit) = editTrackById(track.id, f)
+
+        fun editAllTracks(f: TrackOptions.() -> Unit) = editTrackById(-2, f)
 
         override fun commandArgs(): List<String> = ArrayList<String>().apply {
             add(videoTracks)
@@ -202,8 +255,23 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
         inputFiles.add(InputFile(file).apply(f))
     }
 
+    /**
+     * Adds an the source file of the given track as an input file, enabling only the given track
+     */
+    fun addTrack(track : MkvToolnixTrack, f: InputFile.TrackOptions.() -> Unit = {}) = apply {
+        addInputFile(track.fileIdentification.fileName) {
+            excludeAllTracks()
+            trackTags.excludeAll()
+            tracksByType(track.type).include {
+                addById(track.id)
+            }
+            this.editTrack(track, f)
+        }
+    }
+
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
-        add(GlobalOptions)
+        add(globalOptions)
+        add(outputControl)
         add("--output", outputFile.absolutePath.toString())
         inputFiles.forEach { add(it) }
     }

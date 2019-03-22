@@ -16,7 +16,7 @@ class MkvPropEditCommand(
     val sourceFile: File
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
 
-    object GlobalOptions : CommandArgs {
+    class GlobalOptions : CommandArgs {
         /**
          * `--parse-mode` option. The parse mode. Defaults to [MkvPropEditParseMode.FAST]
          * @see MkvPropEditParseMode
@@ -40,6 +40,8 @@ class MkvPropEditCommand(
 
     /** List of actions that will be performed in the source file */
     val actions: MutableList<MkvPropEditCommandAction> = ArrayList()
+
+    val globalOptions = GlobalOptions()
 
     //region PROPERTY EDIT
     //region track
@@ -447,11 +449,11 @@ class MkvPropEditCommand(
      * @param f lambda that changes the global options
      */
     fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
-        f(GlobalOptions)
+        f(globalOptions)
     }
 
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
-        add(GlobalOptions)
+        add(globalOptions)
         add(sourceFile.absolutePath.toString())
         actions.forEach { add(it) }
     }

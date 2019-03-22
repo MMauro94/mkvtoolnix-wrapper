@@ -3,7 +3,6 @@ package com.github.mmauro94.mkvtoolnix_wrapper
 import com.beust.klaxon.Json
 import com.github.mmauro94.mkvtoolnix_wrapper.json.klaxon
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
-import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditParseMode
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -36,6 +35,13 @@ data class MkvToolnixFileIdentification(
      */
     fun propedit() = MkvPropEditCommand(fileName)
 
+    internal fun applyInfoToTracks() = apply{
+        tracks.forEachIndexed { index, t ->
+            t._fileIdentification = this
+            t._trackPosition = index + 1
+        }
+    }
+
     companion object {
 
         /**
@@ -45,12 +51,7 @@ data class MkvToolnixFileIdentification(
         fun identify(file: File): MkvToolnixFileIdentification {
             val p = MkvToolnixBinary.MKV_MERGE.processBuilder("-J", file.absolutePath).start()
             return BufferedReader(InputStreamReader(p.inputStream)).use { input ->
-                klaxon().parse<MkvToolnixFileIdentification>(input)!!.apply {
-                    tracks.forEachIndexed { index, t ->
-                        t._fileIdentification = this
-                        t._trackPosition = index + 1
-                    }
-                }
+                klaxon().parse<MkvToolnixFileIdentification>(input)!!.applyInfoToTracks()
             }
         }
     }
