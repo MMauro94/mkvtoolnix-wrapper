@@ -1,5 +1,6 @@
 package com.github.mmauro94.mkvtoolnix_wrapper.examples
 
+import com.github.mmauro94.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.deleteName
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.setLanguage
@@ -32,4 +33,5 @@ fun main() {
             mimeType = "application/json"
         }
         .deleteAttachmentByName("lol")
+        .executeAndPrint()
 }
