@@ -23,10 +23,22 @@ class MkvToolnixLanguage internal constructor(
 
     override fun toString() = "$name ($iso639_2)"
 
+    fun isUndefined() = iso639_2 == "und"
+
+    fun isEnglish() = iso639_2 == "eng"
+
     companion object {
 
         private val LANGUAGE_LINE_PATTERN =
             Pattern.compile("^\\s*([^|]+)\\s+\\|\\s*([a-z]{3})\\s*\\|\\s*([a-z]{2})?\\s*$")!!
+
+        val english by lazy {
+            all.getValue("eng")
+        }
+
+        val undefined by lazy {
+            all.getValue("und")
+        }
 
         /**
          * Map of all the available languages in `mkvmerge`
@@ -49,3 +61,5 @@ class MkvToolnixLanguage internal constructor(
         }
     }
 }
+
+fun MkvToolnixLanguage?.isNullOrUndefined() = this == null || this.isUndefined()
