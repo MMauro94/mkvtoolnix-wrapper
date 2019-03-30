@@ -13,7 +13,7 @@ class PropEditTest {
 
     @Test fun testPropEditTracks() {
         copyFileForEdit { file ->
-            MkvPropEditCommand(file)
+            MkvToolnix.propedit(file)
                 .globalOptions {
                     verbose = true
                 }
@@ -90,7 +90,7 @@ class PropEditTest {
         val UID = BigInteger("707")
 
         copyFileForEdit { file ->
-            MkvPropEditCommand(file)
+            MkvToolnix.propedit(file)
                 .globalOptions {
                     verbose = true
                 }
@@ -131,7 +131,7 @@ class PropEditTest {
 
         copyFileForEdit { file ->
             createDummyAttachment { att ->
-                MkvPropEditCommand(file)
+                MkvToolnix.propedit(file)
                     .globalOptions {
                         verbose = true
                     }
@@ -164,7 +164,7 @@ class PropEditTest {
 
         copyFileForEdit { file ->
             createDummyAttachment { att ->
-                MkvPropEditCommand(file)
+                MkvToolnix.propedit(file)
                     .globalOptions {
                         verbose = true
                     }
@@ -202,7 +202,7 @@ class PropEditTest {
 
     @Test fun testAttachmentDelete() {
         copyFileForEdit { file ->
-            MkvPropEditCommand(file)
+            MkvToolnix.propedit(file)
                 .deleteAttachmentByMimeType("text/plain")
                 .executeAndAssert()
 

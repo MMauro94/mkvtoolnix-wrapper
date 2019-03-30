@@ -2,19 +2,19 @@ package com.github.mmauro94.mkvtoolnix_wrapper.propedit
 
 import com.github.mmauro94.mkvtoolnix_wrapper.*
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandException.MkvPropEditException
-import com.github.mmauro94.mkvtoolnix_wrapper.utils.asCachedSequence
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import java.math.BigInteger
 
 /**
  * Class to create a `mkvpropedit` command
  * @param sourceFile the file that needs to be modified
  */
-class MkvPropEditCommand(
+class MkvPropEditCommand internal constructor(
     val sourceFile: File
 ) : MkvToolnixCommand<MkvPropEditCommand>(MkvToolnixBinary.MKV_PROP_EDIT) {
+
+    //region GLOBAL OPTIONS
+    val globalOptions = GlobalOptions()
 
     class GlobalOptions : CommandArgs {
         /**
@@ -27,6 +27,8 @@ class MkvPropEditCommand(
         /** `--abort-on-warnings` option. Tells the program to abort after the first warning is emitted. The program's exit code will be 1. */
         var abortOnWarnings: Boolean = false
 
+        val additionalArgs = AdditionalArgs()
+
         override fun commandArgs(): List<String> = ArrayList<String>().apply {
             if (verbose) {
                 add("--verbose")
@@ -35,13 +37,20 @@ class MkvPropEditCommand(
                 add("--abort-on-warnings")
             }
             add(parseMode)
+            add(additionalArgs)
         }
     }
 
+    /**
+     * @param f lambda that changes the global options
+     */
+    fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
+        f(globalOptions)
+    }
+    //endregion
+
     /** List of actions that will be performed in the source file */
     val actions: MutableList<MkvPropEditCommandAction> = ArrayList()
-
-    val globalOptions = GlobalOptions()
 
     //region PROPERTY EDIT
     //region track
@@ -445,11 +454,8 @@ class MkvPropEditCommand(
     //endregion
     //endregion
 
-    /**
-     * @param f lambda that changes the global options
-     */
-    fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
-        f(globalOptions)
+    fun addCustomAction(args : List<String>) = apply {
+        actions.add(MkvPropEditCommandCustomAction(args))
     }
 
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
@@ -459,8 +465,7 @@ class MkvPropEditCommand(
     }
 
 
-
     override val exceptionInitializer = ::MkvPropEditException
 
-    override fun me()= this
+    override fun me() = this
 }

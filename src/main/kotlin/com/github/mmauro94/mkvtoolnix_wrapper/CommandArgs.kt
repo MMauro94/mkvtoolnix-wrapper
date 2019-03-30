@@ -7,7 +7,7 @@ interface CommandArg : CommandArgs {
     /**
      * @return the command arg
      */
-    fun commandArg() : String
+    fun commandArg(): String
 
     /**
      * Default implemented that returns a singleton list containing the single [commandArg]
@@ -23,7 +23,13 @@ interface CommandArgs {
     /**
      * @return the list of command arguments
      */
-    fun commandArgs() : List<String>
+    fun commandArgs(): List<String>
+}
+
+class AdditionalArgs(
+    private val args: MutableList<String> = mutableListOf()
+) : MutableList<String> by args, CommandArgs {
+    override fun commandArgs() = args
 }
 
 /**

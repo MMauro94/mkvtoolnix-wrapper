@@ -1,5 +1,3 @@
-# STILL WORK IN PROGRESS
-
 # mkvtoolnix-wrapper
 An easy to use light kotlin-jvm wrapper for most common mkvmerge and mkvpropedit CLI commands.
 
@@ -9,7 +7,7 @@ WARNING! This library is not feature complete: there are quite a few advanced op
 
 The library is published on maven central:
 ```
-compile 'com.github.mmauro94:mkvtoolnix-wrapper:1.0-SNAPSHOT'
+compile 'com.github.mmauro94:mkvtoolnix-wrapper:1.0.0'
 ```
 # Usage
 
@@ -47,12 +45,21 @@ MkvMergeCommand(File("output.mkv"))
     .executeAndPrint()
 ```
 
-You can find more examples [here](https://github.com/MMauro94/mkvtoolnix-wrapper/tree/master/src/main/kotlin/com/github/mmauro94/mkvtoolnix_wrapper/examples).
+You can find more complete examples [here](https://github.com/MMauro94/mkvtoolnix-wrapper/tree/master/src/main/kotlin/com/github/mmauro94/mkvtoolnix_wrapper/examples).
+
+The commands will use `mkvmerge` and `mkvpropedit` from the PATH environment. To change that, you can set the location of the binaries with:
+```kotlin
+//Set custom path
+MkvToolnix.mkvToolnixPath = File("custom/path/to/binaries")
+
+//Reset to using PATH environment
+MkvToolnix.mkvToolnixPath = null
+``` 
 
 Methods and classes are thoroughly documented and linked to official doc when possible, so you can read more there.
 
-# Features
-As you can see from the list below, there are still some features that are WIP.
+# Supported features
+As you can see from the list below, there are still some features that are not supported. You can, however, with the `additionalArgs` property, pass custom parameters to the command. 
 * mkvpropedit:
     - [x] Fast/full parse mode
     - [x] Edit properties

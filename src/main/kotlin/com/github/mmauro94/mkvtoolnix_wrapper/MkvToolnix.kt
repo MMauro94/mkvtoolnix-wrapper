@@ -1,5 +1,6 @@
 package com.github.mmauro94.mkvtoolnix_wrapper
 
+import com.github.mmauro94.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
 import java.io.File
 
@@ -16,6 +17,10 @@ object MkvToolnix {
      * When `null` the binaries will be searched in the environment PATH
      */
     var mkvToolnixPath : File? = null
+
+    fun merge(outputFile : File) = MkvMergeCommand(outputFile)
+
+    fun propedit(outputFile : File) = MkvPropEditCommand(outputFile)
 }
 
 internal fun String.mkvtoolnixEscape() : String {

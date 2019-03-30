@@ -33,7 +33,7 @@ data class MkvToolnixFileIdentification(
     /**
      * @return a new [MkvPropEditCommand] with this file as a subject
      */
-    fun propedit() = MkvPropEditCommand(fileName)
+    fun propedit() = MkvToolnix.propedit(fileName)
 
     internal fun applyInfoToTracks() = apply{
         tracks.forEachIndexed { index, t ->

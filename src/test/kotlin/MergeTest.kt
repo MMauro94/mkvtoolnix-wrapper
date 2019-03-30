@@ -19,7 +19,7 @@ class MergeTest {
         val TITLE = "COOL LOOKING TITLE"
 
         OUTPUT_FILE.deleteAfter { of ->
-            MkvMergeCommand(of).apply {
+            MkvToolnix.merge(of).apply {
                 globalOptions {
                     title = TITLE
                 }
@@ -100,7 +100,7 @@ class MergeTest {
     @Test
     fun testMerge2() {
         OUTPUT_FILE.deleteAfter { of ->
-            MkvMergeCommand(of).apply {
+            MkvToolnix.merge(of).apply {
                 addTrack(EXPECTED_IDENTIFICATION.tracks[2]) {
                     isForced = true
                 }

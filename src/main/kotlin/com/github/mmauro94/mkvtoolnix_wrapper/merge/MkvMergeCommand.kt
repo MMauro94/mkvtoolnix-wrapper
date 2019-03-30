@@ -6,7 +6,12 @@ import com.github.mmauro94.mkvtoolnix_wrapper.utils.toInt
 import java.io.File
 import java.time.Duration
 
-class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>(MkvToolnixBinary.MKV_MERGE) {
+class MkvMergeCommand internal constructor(
+    val outputFile: File
+) : MkvToolnixCommand<MkvMergeCommand>(MkvToolnixBinary.MKV_MERGE) {
+
+    //region GLOBAL OPTIONS
+    val globalOptions = GlobalOptions()
 
     class GlobalOptions : CommandArgs {
 
@@ -14,6 +19,8 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
         var webm = false
         var title: String? = null
         var defaultLanguage: MkvToolnixLanguage? = null
+
+        val additionalArgs = AdditionalArgs()
 
         fun defaultLanguage(language: String) {
             defaultLanguage = MkvToolnixLanguage.all.getValue(language)
@@ -30,10 +37,9 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
                 add("--title")
                 add(it)
             }
+            add(additionalArgs)
         }
     }
-
-    val globalOptions = GlobalOptions()
 
     /**
      * @param f lambda that changes the global options
@@ -41,7 +47,10 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
     fun globalOptions(f: GlobalOptions.() -> Unit) = apply {
         f(globalOptions)
     }
+    //endregion
 
+    //region OUTPUT CONTROL
+    val outputControl = OutputControl()
 
     class OutputControl : CommandArgs {
         /**
@@ -60,15 +69,15 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
         }
     }
 
-    val outputControl = OutputControl()
-
     /**
      * @param f lambda that changes the global options
      */
     fun outputControl(f: OutputControl.() -> Unit) = apply {
         f(outputControl)
     }
+    //endregion
 
+    //region INPUT FILES
     class InputFile(val file: File) : CommandArgs {
 
         class CopyTracksCommand(val typeCommand: String, val excludeAllCommand: String) : CommandArgs {
@@ -213,6 +222,8 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
 
         val trackOptions: MutableMap<Long, TrackOptions> = HashMap()
 
+        val additionalArgs = AdditionalArgs()
+
         fun excludeAllTracks() = apply {
             videoTracks.excludeAll()
             audioTracks.excludeAll()
@@ -220,8 +231,8 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             buttonTracks.excludeAll()
         }
 
-        fun tracksByType(type: MkvToolnixTrackType) : CopyTracksCommand {
-            return when(type) {
+        fun tracksByType(type: MkvToolnixTrackType): CopyTracksCommand {
+            return when (type) {
                 MkvToolnixTrackType.audio -> audioTracks
                 MkvToolnixTrackType.video -> videoTracks
                 MkvToolnixTrackType.button -> buttonTracks
@@ -244,6 +255,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             add(buttonTracks)
             add(trackTags)
             trackOptions.values.forEach { add(it) }
+            add(additionalArgs)
             add(file.absolutePath)
         }
 
@@ -258,7 +270,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
     /**
      * Adds an the source file of the given track as an input file, enabling only the given track
      */
-    fun addTrack(track : MkvToolnixTrack, f: InputFile.TrackOptions.() -> Unit = {}) = apply {
+    fun addTrack(track: MkvToolnixTrack, f: InputFile.TrackOptions.() -> Unit = {}) = apply {
         addInputFile(track.fileIdentification.fileName) {
             excludeAllTracks()
             trackTags.excludeAll()
@@ -268,6 +280,7 @@ class MkvMergeCommand(val outputFile: File) : MkvToolnixCommand<MkvMergeCommand>
             this.editTrack(track, f)
         }
     }
+    //endregion
 
     override fun commandArgs(): List<String> = ArrayList<String>().apply {
         add(globalOptions)
