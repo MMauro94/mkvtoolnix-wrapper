@@ -1,14 +1,12 @@
 # mkvtoolnix-wrapper
 An easy to use light kotlin-jvm wrapper for most common mkvmerge and mkvpropedit CLI commands.
 
-```
-WARNING! This library is not feature complete: there are quite a few advanced options that are not currently supported.
-```
-
 The library is published on maven central:
 ```
 compile 'com.github.mmauro94:mkvtoolnix-wrapper:1.0.0'
 ```
+**WARNING** This library is not feature complete: there are quite a few advanced options that are not currently supported. You can achieve them adding custom args to the command.
+
 # Usage
 
 
@@ -27,11 +25,11 @@ MkvPropEditCommand(File("input.mkv"))
     .executeAndPrint()
 ```
 
-To run merge files:
+To merge files:
 ```kotlin
 MkvMergeCommand(File("output.mkv"))
     .globalOptions { 
-        this.title = "Title"
+        title = "Title"
     }
     .addInputFile(File("inputA.mkv")) {
         videoTracks.include {
