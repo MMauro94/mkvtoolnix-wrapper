@@ -154,7 +154,9 @@ class MergeTest {
             properties = container.properties!!.copy(
                 dateLocal = actual.container.properties?.dateLocal,
                 dateUtc = actual.container.properties?.dateUtc,
-                segmentUid = actual.container.properties?.segmentUid
+                segmentUid = actual.container.properties?.segmentUid,
+                muxingApplication = actual.container.properties?.muxingApplication,
+                writingApplication = actual.container.properties?.writingApplication
             )
         )
     )

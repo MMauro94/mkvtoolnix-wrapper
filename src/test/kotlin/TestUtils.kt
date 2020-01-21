@@ -10,6 +10,7 @@ import kotlin.test.assertTrue
 
 /** The test file used to do the testing */
 internal val TEST_FILE = File("src/test/resources/test.mkv")
+
 /** The expected identification information given by the test file */
 internal val EXPECTED_IDENTIFICATION by lazy {
     MkvToolnixFileIdentification(
@@ -45,7 +46,7 @@ internal val EXPECTED_IDENTIFICATION by lazy {
         fileName = TEST_FILE.absoluteFile,
         tracks = listOf(
             MkvToolnixTrack(
-                codec = "MPEG-H/HEVC/h.265",
+                codec = "MPEG-H/HEVC/H.265",
                 id = 0,
                 type = MkvToolnixTrackType.video,
                 properties = MkvToolnixTrack.Properties(
@@ -184,3 +185,4 @@ internal fun <R> createDummyAttachment(f: (File) -> R): R {
         f(it)
     }
 }
+
