@@ -1,5 +1,6 @@
 package com.github.mmauro94.mkvtoolnix_wrapper
 
+import com.github.mmauro94.mkvtoolnix_wrapper.extract.MkvExtractCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
 
@@ -15,6 +16,12 @@ sealed class MkvToolnixCommandException(open val result: MkvToolnixCommandResult
 
     class MkvMergeException internal constructor(
         override val result: MkvToolnixCommandResult<MkvMergeCommand>,
+        message: String? = null,
+        cause: Throwable? = null
+    ) : MkvToolnixCommandException(result, message, cause)
+
+    class MkvExtractException internal constructor(
+        override val result: MkvToolnixCommandResult<MkvExtractCommand>,
         message: String? = null,
         cause: Throwable? = null
     ) : MkvToolnixCommandException(result, message, cause)

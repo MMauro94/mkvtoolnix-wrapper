@@ -1,5 +1,6 @@
 package com.github.mmauro94.mkvtoolnix_wrapper
 
+import com.github.mmauro94.mkvtoolnix_wrapper.extract.MkvExtractCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import com.github.mmauro94.mkvtoolnix_wrapper.propedit.MkvPropEditCommand
 import java.io.File
@@ -20,7 +21,10 @@ object MkvToolnix {
 
     fun merge(outputFile : File) = MkvMergeCommand(outputFile)
 
-    fun propedit(outputFile : File) = MkvPropEditCommand(outputFile)
+    fun propedit(sourceFile : File) = MkvPropEditCommand(sourceFile)
+
+    fun extract(sourceFile : File) = MkvExtractCommand(sourceFile)
+
 }
 
 internal fun String.mkvtoolnixEscape() : String {

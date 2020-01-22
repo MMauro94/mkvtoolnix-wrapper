@@ -11,7 +11,8 @@ import java.util.regex.Pattern
  */
 enum class MkvToolnixBinary(val binaryName: String) {
     MKV_PROP_EDIT("mkvpropedit"),
-    MKV_MERGE("mkvmerge");
+    MKV_MERGE("mkvmerge"),
+    MKV_EXTRACT("mkvextract");
 
     /**
      * The file pointing to this binary, or `null` if the the binary should be searched using the environment PATH
