@@ -10,6 +10,8 @@ import kotlin.test.assertTrue
 
 /** The test file used to do the testing */
 internal val TEST_FILE = File("src/test/resources/test.mkv")
+internal val TEST_FILE_SRT = File("src/test/resources/test.srt")
+internal val TEST_FILE_INVALID = File("src/test/resources/invalid_file")
 
 /** The expected identification information given by the test file */
 internal val EXPECTED_IDENTIFICATION by lazy {

@@ -21,7 +21,7 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
     }
 
     /**
-     * Starts the execution of the command, returning the result object immediately, lazingly parsing the output.
+     * Starts the execution of the command, returning the result object immediately, lazily parsing the output.
      * The output can be iterated while the program is running. Calling [MkvToolnixCommandResult.exitCode] will obviously halt until the command terminates.
      *
      * WARNING! If you call this method, you will be responsible for closing the input stream. You can do so by calling [MkvToolnixCommandResult.Lazy.close] on the returned object. It is therefore suggested to [use] the returned object immediately
@@ -35,12 +35,14 @@ abstract class MkvToolnixCommand<SELF : MkvToolnixCommand<SELF>>(val binary: Mkv
 
         val reader = BufferedReader(InputStreamReader(p.inputStream))
         val output = reader.lineSequence().map { line ->
-            val (msg, type) = if (line.startsWith(WARNING_PREFIX)) {
-                line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
-            } else if (line.startsWith(ERROR_PREFIX)) {
-                line.substring(ERROR_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.ERROR
-            } else {
-                line to MkvToolnixCommandResult.Line.Type.INFO
+            val (msg, type) = when {
+                line.startsWith(WARNING_PREFIX, ignoreCase = true) -> {
+                    line.substring(WARNING_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.WARNING
+                }
+                line.startsWith(ERROR_PREFIX, ignoreCase = true) -> {
+                    line.substring(ERROR_PREFIX.length).trimStart() to MkvToolnixCommandResult.Line.Type.ERROR
+                }
+                else -> line to MkvToolnixCommandResult.Line.Type.INFO
             }
             if (type != MkvToolnixCommandResult.Line.Type.INFO || msg.isNotBlank()) {
                 MkvToolnixCommandResult.Line(msg, type)

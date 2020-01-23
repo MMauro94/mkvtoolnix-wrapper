@@ -9,7 +9,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
+    id 'org.jetbrains.kotlin.jvm' version "1.3.61"
     id 'com.bmuschko.nexus' version "2.3.1"
     id 'io.codearte.nexus-staging' version '0.11.0'
 }
@@ -32,8 +32,8 @@ dependencies {
 
     compile 'com.beust:klaxon:5.0.5'
 
-    testImplementation "org.jetbrains.kotlin:kotlin-test"
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:1.3.61"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
 }
 
 compileKotlin {
@@ -42,6 +42,14 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+//Requirements in gradle.properties to publish:
+// - nexusUsername and nexusPassword variables, with the USER TOKEN (profile page on oss.sonatype.org)
+// - generate a private key with `gpg --gen-key`
+// - `gpg2 --list-keys` to list keys
+// - publish the key with `gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys XXXXX` where XXXXX is the id of the key
+// - signing.keyId, signing.password and signing.secretKeyRingFile variables (use short key id)
+// - singing.secretKeyRingFile should be a gpg file, if not present export one eith `gpg --export-secret-keys > secring.gpg`
 
 modifyPom {
     //noinspection GroovyAssignabilityCheck

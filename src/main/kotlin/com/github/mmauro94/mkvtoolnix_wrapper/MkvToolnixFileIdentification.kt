@@ -9,10 +9,10 @@ import java.io.InputStreamReader
 
 data class MkvToolnixFileIdentification(
     @Json("attachments")
-    val attachments: List<MkvToolnixAttachment>,
+    val attachments: List<MkvToolnixAttachment> = emptyList(),
 
     @Json("chapters")
-    val chapters: List<MkvToolnixChapter>,
+    val chapters: List<MkvToolnixChapter> = emptyList(),
 
     @Json("container")
     val container: MkvToolnixContainer,
@@ -24,7 +24,7 @@ data class MkvToolnixFileIdentification(
     val fileName: File,
 
     @Json("tracks")
-    val tracks: List<MkvToolnixTrack>,
+    val tracks: List<MkvToolnixTrack> = emptyList(),
 
     @Json("warnings")
     val warnings: List<String>

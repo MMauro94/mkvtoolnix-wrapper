@@ -1,10 +1,13 @@
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnix
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixBinary
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixLanguage
+import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixTrackType
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
+import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -48,6 +51,22 @@ class BaseTests {
             }
             assertEquals(EXPECTED_IDENTIFICATION, this)
         }
+        println("OK")
+    }
+
+    @Test fun test3_ExpectedIdentificationSrt() {
+        println("Testing file identification SRT...")
+        val id = MkvToolnix.identify(TEST_FILE_SRT)
+        assert(id.tracks.size == 1)
+        assert(id.tracks.single().type == MkvToolnixTrackType.subtitles)
+        println("OK")
+    }
+
+    @Test fun test4_ExpectedIdentificationInvalid() {
+        println("Testing invalid file identification...")
+        val id = MkvToolnix.identify(TEST_FILE_INVALID)
+        assertFalse(id.container.recognized)
+        assertFalse(id.container.supported)
         println("OK")
     }
 
