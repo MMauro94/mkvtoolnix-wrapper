@@ -47,7 +47,7 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
         }
 
         companion object {
-            private val PROGRESS_PATTERN = Pattern.compile("^Progress:\\s+\\[=*\\s*]\\s+(\\d+)%$")
+            private val PROGRESS_PATTERN = Pattern.compile("^Progress:\\s+(\\d+)%$")
         }
     }
 

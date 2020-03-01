@@ -28,10 +28,9 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'com.beust:klaxon:5.0.5'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    compile 'com.beust:klaxon:5.0.5'
-
     testImplementation "org.jetbrains.kotlin:kotlin-test:1.3.61"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
 }
@@ -49,7 +48,7 @@ compileTestKotlin {
 // - `gpg2 --list-keys` to list keys
 // - publish the key with `gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys XXXXX` where XXXXX is the id of the key
 // - signing.keyId, signing.password and signing.secretKeyRingFile variables (use short key id)
-// - singing.secretKeyRingFile should be a gpg file, if not present export one eith `gpg --export-secret-keys > secring.gpg`
+// - singing.secretKeyRingFile should be a gpg file, if not present export one with `gpg --export-secret-keys > secring.gpg`
 
 modifyPom {
     //noinspection GroovyAssignabilityCheck
