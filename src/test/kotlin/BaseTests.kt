@@ -70,6 +70,22 @@ class BaseTests {
         println("OK")
     }
 
+    @Test fun test4_ExpectedIdentificationEmptyFile() {
+        println("Testing empty file identification...")
+        val id = MkvToolnix.identify(TEST_FILE_EMPTY)
+        assertFalse(id.container.recognized)
+        assertFalse(id.container.supported)
+        println("OK")
+    }
+
+    @Test fun test4_ExpectedIdentificationNonExistantFile() {
+        println("Testing empty file identification...")
+        val id = MkvToolnix.identify(File("src/test/resources/file_that_does_not_exist"))
+        assertFalse(id.container.recognized)
+        assertFalse(id.container.supported)
+        println("OK")
+    }
+
     @Test fun testVersionInfo() {
         MkvToolnixBinary.values().forEach {
             val vi = it.getVersionInfo()

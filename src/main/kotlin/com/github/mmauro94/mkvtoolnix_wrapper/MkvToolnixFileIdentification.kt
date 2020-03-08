@@ -7,7 +7,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
-data class MkvToolnixFileIdentification(
+data class MkvToolnixFileIdentification internal constructor(
     @Json("attachments")
     val attachments: List<MkvToolnixAttachment> = emptyList(),
 
@@ -15,13 +15,13 @@ data class MkvToolnixFileIdentification(
     val chapters: List<MkvToolnixChapter> = emptyList(),
 
     @Json("container")
-    val container: MkvToolnixContainer,
+    val container: MkvToolnixContainer = MkvToolnixContainer(recognized = false, supported = false),
 
     @Json("errors")
     val errors: List<String>,
 
     @Json("file_name")
-    val fileName: File,
+    var fileName: File,
 
     @Json("tracks")
     val tracks: List<MkvToolnixTrack> = emptyList(),
@@ -35,7 +35,7 @@ data class MkvToolnixFileIdentification(
      */
     fun propedit() = MkvToolnix.propedit(fileName)
 
-    internal fun applyInfoToTracks() = apply{
+    internal fun applyInfoToTracks() = apply {
         tracks.forEachIndexed { index, t ->
             t._fileIdentification = this
             t._trackPosition = index + 1
@@ -51,7 +51,9 @@ data class MkvToolnixFileIdentification(
         fun identify(file: File): MkvToolnixFileIdentification {
             val p = MkvToolnixBinary.MKV_MERGE.processBuilder("-J", file.absolutePath).start()
             return BufferedReader(InputStreamReader(p.inputStream)).use { input ->
-                klaxon().parse<MkvToolnixFileIdentification>(input)!!.applyInfoToTracks()
+                val jsonObject = klaxon().parseJsonObject(input)
+                jsonObject.putIfAbsent("file_name", file.absolutePath)
+                klaxon().maybeParse<MkvToolnixFileIdentification>(jsonObject)!!.applyInfoToTracks()
             }
         }
     }
