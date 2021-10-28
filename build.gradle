@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'maven-publish'
+    id 'signing'
     id 'org.jetbrains.kotlin.jvm' version "1.5.31"
     id 'io.github.gradle-nexus.publish-plugin' version "1.1.0"
 }
@@ -46,46 +48,52 @@ nexusPublishing {
     }
 }
 
-//modifyPom {
-//    //noinspection GroovyAssignabilityCheck
-//    project {
-//        name = "mkvtoolnix-wrapper"
-//        description = "An easy to use light kotlin-jvm wrapper for most common mkvmerge and mkvpropedit CLI commands"
-//        url = "https://github.com/MMauro94/mkvtoolnix-wrapper"
-//        inceptionYear = 2019
-//
-//        scm {
-//            url = 'scm:git:git://github.com/MMauro94/mkvtoolnix-wrapper.git'
-//            connection = 'scm:git:ssh://github.com:MMauro94/mkvtoolnix-wrapper.git'
-//            developerConnection = 'http://github.com/MMauro94/mkvtoolnix-wrapper/tree/master'
-//        }
-//
-//        licenses {
-//            license {
-//                name = 'MIT License'
-//                url = 'https://opensource.org/licenses/MIT'
-//                distribution = 'repo'
-//            }
-//        }
-//
-//        developers {
-//            developer {
-//                id = 'MMauro94'
-//                name = 'Mauro Molin'
-//                email = 'molin.mauro@gmail.com'
-//            }
-//        }
-//
-//    }
-//}
-//extraArchive {
-//    sources = true
-//    tests = true
-//    javadoc = true
-//}
-//
-//nexus {
-//    sign = true
-//    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-//    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-//}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = "mkvtoolnix-wrapper"
+                description = "An easy to use light kotlin-jvm wrapper for most common mkvmerge and mkvpropedit CLI commands"
+                url = "https://github.com/MMauro94/mkvtoolnix-wrapper"
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'MMauro94'
+                        name = 'Mauro Molin'
+                        email = 'molin.mauro@gmail.com'
+                    }
+                }
+                scm {
+                    url = 'scm:git:git://github.com/MMauro94/mkvtoolnix-wrapper.git'
+                    connection = 'scm:git:ssh://github.com:MMauro94/mkvtoolnix-wrapper.git'
+                    developerConnection = 'http://github.com/MMauro94/mkvtoolnix-wrapper/tree/master'
+                }
+            }
+        }
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+signing {
+    required { !project.version.endsWith("-SNAPSHOT") && !project.hasProperty("skipSigning") }
+
+    sign publishing.publications.maven
+}
