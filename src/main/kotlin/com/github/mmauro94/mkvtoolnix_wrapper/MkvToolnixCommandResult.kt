@@ -92,7 +92,7 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
      */
     fun toString(printCommand: Boolean = false, printOutput: Boolean = true, printExitCode: Boolean = true) = StringBuilder().apply {
         outputLines(printCommand, printOutput, printExitCode).forEach {
-            appendln(it)
+            appendLine(it)
         }
     }.toString()
 
