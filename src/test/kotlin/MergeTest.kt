@@ -1,7 +1,6 @@
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnix
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixFileIdentification
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixLanguage
-import com.github.mmauro94.mkvtoolnix_wrapper.merge.MkvMergeCommand
 import org.junit.Test
 import java.io.File
 import java.time.Duration
@@ -15,13 +14,13 @@ class MergeTest {
 
     @Test
     fun testMerge1() {
-        val SUB_NAME = "I'M IN SPANISH, ADJUSTED TO START"
-        val TITLE = "COOL LOOKING TITLE"
+        val subName = "I'M IN SPANISH, ADJUSTED TO START"
+        val fileTitle = "COOL LOOKING TITLE"
 
         OUTPUT_FILE.deleteAfter { of ->
             MkvToolnix.merge(of).apply {
                 globalOptions {
-                    title = TITLE
+                    title = fileTitle
                 }
                 addInputFile(TEST_FILE) {
                     subtitleTracks.excludeAll()
@@ -40,7 +39,7 @@ class MergeTest {
                         addByLanguage("ita")
                     }
                     editTrackById(4) {
-                        name = SUB_NAME
+                        name = subName
                         language("spa")
                         sync(Duration.ofSeconds(-1))
                     }
@@ -56,7 +55,7 @@ class MergeTest {
                     container = EXPECTED_IDENTIFICATION.container.run {
                         copy(
                             properties = properties!!.copy(
-                                title = TITLE
+                                title = fileTitle
                             )
                         )
                     },
@@ -83,7 +82,7 @@ class MergeTest {
                             copy(
                                 id = 2,
                                 properties = properties!!.copy(
-                                    trackName = SUB_NAME,
+                                    trackName = subName,
                                     number = 3,
                                     language = MkvToolnixLanguage.all.getValue("spa"),
                                     minimumTimestamp = Duration.ZERO

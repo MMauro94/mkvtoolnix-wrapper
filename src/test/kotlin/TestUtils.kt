@@ -49,7 +49,7 @@ internal val EXPECTED_IDENTIFICATION by lazy {
         fileName = TEST_FILE.absoluteFile,
         tracks = listOf(
             MkvToolnixTrack(
-                codec = "MPEG-H/HEVC/H.265",
+                codec = "HEVC/H.265/MPEG-H",
                 id = 0,
                 type = MkvToolnixTrackType.video,
                 properties = MkvToolnixTrack.Properties(
