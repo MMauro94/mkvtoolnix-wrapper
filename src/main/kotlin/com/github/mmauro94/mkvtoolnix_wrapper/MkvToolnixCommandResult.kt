@@ -4,7 +4,6 @@ import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandResult.*
 import com.github.mmauro94.mkvtoolnix_wrapper.MkvToolnixCommandResult.Line.Type
 import com.github.mmauro94.mkvtoolnix_wrapper.utils.CachedSequence
 import java.io.BufferedReader
-import java.util.regex.Pattern
 
 /**
  * Abstract class that represents a result given by a MKV Toolnix binary.
@@ -33,9 +32,9 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
 
         val progress by lazy {
             if (type == Type.INFO) {
-                val m = PROGRESS_PATTERN.matcher(message)
-                if (m.matches()) {
-                    m.group(1).toInt() / 100f
+                val m = PROGRESS_REGEX.matchEntire(message)
+                if (m != null) {
+                    m.groupValues[1].toInt() / 100f
                 } else null
             } else null
         }
@@ -47,7 +46,7 @@ sealed class MkvToolnixCommandResult<COMMAND : MkvToolnixCommand<*>>(val command
         }
 
         companion object {
-            private val PROGRESS_PATTERN = Pattern.compile("^Progress:\\s+(\\d+)%$")
+            private val PROGRESS_REGEX = ".+?(100|\\d{1,2})%$".toRegex()
         }
     }
 

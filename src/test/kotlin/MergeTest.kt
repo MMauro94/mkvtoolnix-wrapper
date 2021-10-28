@@ -5,6 +5,7 @@ import org.junit.Test
 import java.io.File
 import java.time.Duration
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class MergeTest {
 
@@ -18,9 +19,11 @@ class MergeTest {
         val fileTitle = "COOL LOOKING TITLE"
 
         OUTPUT_FILE.deleteAfter { of ->
-            MkvToolnix.merge(of).apply {
+            val result = MkvToolnix.merge(of).apply {
                 globalOptions {
                     title = fileTitle
+                    additionalArgs.add("--ui-language")
+                    additionalArgs.add("fr")
                 }
                 addInputFile(TEST_FILE) {
                     subtitleTracks.excludeAll()
@@ -48,6 +51,8 @@ class MergeTest {
                     trackOrder.add(0 to 1)
                 }
             }.executeAndAssert()
+
+            assertTrue(result.outputList.any { it.isProgressLine }, "No progress lines detected")
 
             val actual = MkvToolnix.identify(of)
             assertEquals(

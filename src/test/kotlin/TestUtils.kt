@@ -157,10 +157,8 @@ internal val EXPECTED_IDENTIFICATION by lazy {
 /**
  * Executes the command printing everything on standard output, and asserting that the command succeeds
  */
-internal fun MkvToolnixCommand<*>.executeAndAssert() {
-    executeAndPrint(true).apply {
-        assertTrue(success, "Command exited with code: $exitCode")
-    }
+internal fun MkvToolnixCommand<*>.executeAndAssert() = executeAndPrint(true).apply {
+    assertTrue(success, "Command exited with code: $exitCode")
 }
 
 /**
