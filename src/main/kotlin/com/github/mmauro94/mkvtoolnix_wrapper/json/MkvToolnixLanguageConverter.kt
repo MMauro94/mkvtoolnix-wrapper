@@ -13,7 +13,7 @@ internal object MkvToolnixLanguageConverter : Converter {
         jv.string?.let { MkvToolnixLanguage.all[it] ?: throw KlaxonException("Invalid language code $it") }
 
     override fun toJson(value: Any): String {
-        return if (value is MkvToolnixLanguage) "\"" + value.iso639_2 + "\""
+        return if (value is MkvToolnixLanguage) "\"" + value.iso639_3 + "\""
         else throw KlaxonException("Must be MkvToolnixLanguage")
     }
 }

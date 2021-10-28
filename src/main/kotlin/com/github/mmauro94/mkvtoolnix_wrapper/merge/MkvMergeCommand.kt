@@ -99,7 +99,7 @@ class MkvMergeCommand internal constructor(
 
                     constructor(language: String) : this(MkvToolnixLanguage.all.getValue(language))
 
-                    override fun partialArg() = language.iso639_2
+                    override fun partialArg() = language.iso639_3
                 }
 
                 companion object {
@@ -207,7 +207,7 @@ class MkvMergeCommand internal constructor(
                 }
                 language?.let {
                     add("--language")
-                    add("$trackId:${it.iso639_2}")
+                    add("$trackId:${it.iso639_3}")
                 }
             }
         }

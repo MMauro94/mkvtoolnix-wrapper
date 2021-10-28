@@ -118,7 +118,7 @@ fun <T : MkvToolnixTrackSelector> MkvPropEditCommandPropertyEditAction<T>.setLan
  * @param language the language
  */
 fun <T : MkvToolnixTrackSelector> MkvPropEditCommandPropertyEditAction<T>.setLanguage(language: MkvToolnixLanguage) =
-    setLanguage(language.iso639_2)
+    setLanguage(language.iso639_3)
 
 /**
  * Sets the language for the given track to be `und` (undetermined)
