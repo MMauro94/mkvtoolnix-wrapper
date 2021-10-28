@@ -42,6 +42,8 @@ java {
 // - signing.keyId, signing.password and signing.secretKeyRingFile variables (use short key id)
 // - singing.secretKeyRingFile should be a gpg file, if not present export one with `gpg --export-secret-keys > secring.gpg`
 
+// PUBLISH WITH COMMAND gradle publishToSonatype closeAndReleaseSonatypeStagingRepository
+
 nexusPublishing {
     repositories {
         sonatype()
